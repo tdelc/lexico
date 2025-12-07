@@ -12,6 +12,8 @@ download_subtitles(video_id, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)
 \item{out_dir}{directory to save file}
 
 \item{yt_dlp}{name of program to launch}
+
+\item{force_dl}{overide existed vtt file}
 }
 \description{
 Download subtitles from a youtube video

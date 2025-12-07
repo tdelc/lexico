@@ -1,9 +1,9 @@
 #' Convert quanteda corpus to tokens
 #'
-#' @param corpus
-#' @param recode_words
-#' @param stopwords
-#' @param multiwords
+#' @param corpus corpus from quanteda
+#' @param recode_words names vector of words to recode
+#' @param stopwords words to remove
+#' @param multiwords words to collapse
 #'
 #' @returns tokens
 #' @export

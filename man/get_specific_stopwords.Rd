@@ -13,5 +13,5 @@ vector of terms
 Specific stopwords for this study
 }
 \examples{
-specific_stopwords()
+get_specific_stopwords()
 }

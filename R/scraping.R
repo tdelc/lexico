@@ -6,8 +6,6 @@
 #'
 #' @returns data.frame
 #' @export
-#'
-#' @examples
 get_playlist_items <- function(api_key, playlist_id, max_results = 100) {
 
   base_url <- "https://www.googleapis.com/youtube/v3/playlistItems"
@@ -67,8 +65,6 @@ get_playlist_items <- function(api_key, playlist_id, max_results = 100) {
 #'
 #' @returns data.frame
 #' @export
-#'
-#' @examples
 get_videos_details <- function(api_key, video_ids) {
 
   base_url <- "https://www.googleapis.com/youtube/v3/videos"
@@ -118,11 +114,10 @@ get_videos_details <- function(api_key, video_ids) {
 #' @param video_id video id
 #' @param out_dir directory to save file
 #' @param yt_dlp name of program to launch
+#' @param force_dl overide existed vtt file
 #'
 #' @returns NULL
 #' @export
-#'
-#' @examples
 download_subtitles <- function(video_id,
                                out_dir,
                                yt_dlp = "yt-dlp",
@@ -155,8 +150,6 @@ download_subtitles <- function(video_id,
 #'
 #' @returns data.frame
 #' @export
-#'
-#' @examples
 read_vtt_as_text <- function(vtt_file) {
   lines <- readLines(vtt_file, warn = FALSE, encoding = "UTF-8")
 
@@ -178,7 +171,7 @@ read_vtt_as_text <- function(vtt_file) {
   file_name <- basename(vtt_file)
   video_id <- sub("\\..*$", "", file_name)
 
-  tibble(
+  dplyr::tibble(
     video_id = video_id,
     text = full_text
   )
@@ -192,10 +185,8 @@ read_vtt_as_text <- function(vtt_file) {
 #' @param playlist_id id of the playlist
 #' @param max_videos maximum amont of videos to extract
 #'
-#' @returns
+#' @returns NULL
 #' @export
-#'
-#' @examples
 run_complete_extraction <- function(api_key,
                                     path,
                                     suffix,
@@ -212,11 +203,11 @@ run_complete_extraction <- function(api_key,
 
   # Previous df
   df_info_prev <- NULL
-  if (file.exists(path_info)) df_info_prev <- read.csv(path_info)
+  if (file.exists(path_info)) df_info_prev <- utils::read.csv(path_info)
 
   df_stat_prev <- NULL
   if (file.exists(path_stat)){
-    df_stat_prev <- read.csv(path_stat) %>%
+    df_stat_prev <- utils::read.csv(path_stat) %>%
       dplyr::mutate(categoryId = as.character(categoryId))
   }
 
@@ -228,8 +219,8 @@ run_complete_extraction <- function(api_key,
   df_stat <- dplyr::bind_rows(df_stat,df_stat_prev)
 
   cli::cli_alert_info("Save files df_info_{suffix}",suffix," and df_stat_{suffix}")
-  write.csv(df_info,file=file.path(path,paste0("df_info_",suffix,".csv")),row.names = F)
-  write.csv(df_stat,file=file.path(path,paste0("df_stat_",suffix,".csv")),row.names = F)
+  utils::write.csv(df_info,file=file.path(path,paste0("df_info_",suffix,".csv")),row.names = F)
+  utils::write.csv(df_stat,file=file.path(path,paste0("df_stat_",suffix,".csv")),row.names = F)
 
   vec_ids <- df_info %>% dplyr::pull(video_id)
   cli::cli_alert_info("Number of subtitles to download: {length(vec_ids)}")
@@ -242,7 +233,7 @@ run_complete_extraction <- function(api_key,
   df_text <- purrr::map_dfr(list_files, read_vtt_as_text) %>%
     dplyr::mutate(chaine = suffix)
 
-  write.csv(df_text,file=path_text,row.names = F)
+  utils::write.csv(df_text,file=path_text,row.names = F)
   return(NULL)
 }
 

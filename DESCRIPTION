@@ -15,10 +15,12 @@ Imports:
     cli,
     dplyr,
     httr,
+    janeaustenr,
     jsonlite,
     lubridate,
     magrittr,
     purrr,
     quanteda,
     stopwords,
-    stringr
+    stringr,
+    utils

@@ -7,7 +7,7 @@
 import_from_iramuteq(file)
 }
 \arguments{
-\item{file}{}
+\item{file}{path to file .txt from IRaMuTeQ}
 }
 \value{
 data.frame
@@ -16,7 +16,8 @@ data.frame
 import df from iramuteq
 }
 \examples{
-df <- janeaustenr::austen_books()
-export_to_iramuteq(df,"book","text",tempfile())
-import_from_iramuteq(tempfile())
+df <- janeaustenr::austen_books()[1:10,]
+path_txt <- file.path(tempfile(fileext=".txt"))
+export_to_iramuteq(df,"book","text",path_txt)
+import_from_iramuteq(path_txt)
 }

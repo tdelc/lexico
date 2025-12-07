@@ -148,7 +148,7 @@ get_dictionary <- function(){
 #' @export
 #'
 #' @examples
-#' specific_stopwords()
+#' get_specific_stopwords()
 get_specific_stopwords <- function(){
   c(stopwords::stopwords('fr'),
     "c'est","ça","qu'on","a","ya","news","lci","bfm","tv","blast",
@@ -224,10 +224,11 @@ get_recode_words <- function(){
 #' @param text vector of strings to correct
 #' @param patterns patterns
 #'
-#' @returns
+#' @returns text
 #' @export
 #'
 #' @examples
+#' remove_apostrophe("Aujourd'hui, j'ai pris l'avion")
 remove_apostrophe <- function(
     text,
     patterns = c("l","d","qu","j","s","m","n","c","t")

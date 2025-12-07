@@ -12,7 +12,13 @@ corpus_to_tokens(
 )
 }
 \arguments{
-\item{multiwords}{}
+\item{corpus}{corpus from quanteda}
+
+\item{recode_words}{names vector of words to recode}
+
+\item{stopwords}{words to remove}
+
+\item{multiwords}{words to collapse}
 }
 \value{
 tokens

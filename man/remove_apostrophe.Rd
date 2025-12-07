@@ -14,6 +14,12 @@ remove_apostrophe(
 
 \item{patterns}{patterns}
 }
+\value{
+text
+}
 \description{
 Correct apostrophe
+}
+\examples{
+remove_apostrophe("Aujourd'hui, j'ai pris l'avion")
 }

@@ -1,27 +1,26 @@
 #' import df from iramuteq
 #'
-#' @param file
+#' @param file path to file .txt from IRaMuTeQ
 #'
 #' @returns data.frame
 #' @export
 #'
 #' @examples
-#' df <- janeaustenr::austen_books()
-#' export_to_iramuteq(df,"book","text",tempfile())
-#' import_from_iramuteq(tempfile())
+#' df <- janeaustenr::austen_books()[1:10,]
+#' path_txt <- file.path(tempfile(fileext=".txt"))
+#' export_to_iramuteq(df,"book","text",path_txt)
+#' import_from_iramuteq(path_txt)
 import_from_iramuteq <- function(file) {
-  # file : chemin vers le fichier .txt IRaMuTeQ
 
-  # Lire toutes les lignes
   lines <- readLines(file, encoding = "UTF-8")  # adapte l'encodage si besoin
 
-  # Indices de début de documents
+  # idx to begin document
   header_idx <- grep("^\\*\\*\\*\\*", lines)
   if (length(header_idx) == 0) {
-    stop("Aucun en-tête '****' trouvé dans le fichier.")
+    stop("No header '****' found in the file.")
   }
 
-  # Ajouter un indice de fin pour boucler proprement
+  # add end idx
   header_idx <- c(header_idx, length(lines) + 1)
 
   docs <- vector("list", length(header_idx) - 1)
@@ -29,7 +28,6 @@ import_from_iramuteq <- function(file) {
   for (k in seq_len(length(docs))) {
     h_line <- lines[header_idx[k]]
 
-    # Lignes de texte du document (entre deux en-têtes)
     if (header_idx[k] + 1 <= header_idx[k + 1] - 1) {
       body_lines <- lines[(header_idx[k] + 1):(header_idx[k + 1] - 1)]
     } else {
@@ -39,23 +37,19 @@ import_from_iramuteq <- function(file) {
     text <- paste(body_lines, collapse = " ")
     text <- trimws(text)
 
-    # Découper la ligne d'en-tête
     tokens <- strsplit(h_line, "\\s+")[[1]]
-    meta_tokens <- tokens[-1]  # on enlève "****"
+    meta_tokens <- tokens[-1]  # remove ****
 
     meta_list <- list(text = text)
 
     for (mt in meta_tokens) {
-      mt2 <- sub("^\\*", "", mt)  # enlever le *
+      mt2 <- sub("^\\*", "", mt)  # remove *
 
-      # 1) cas var=val (si tu l'utilises un jour)
       if (grepl("=", mt2)) {
-        parts <- str_split(mt2, "=", n = 2)[[1]]
-        # 2) cas var_val (ton exemple : yearvideo_2023)
+        parts <- stringr::str_split(mt2, "=", n = 2)[[1]]
       } else if (grepl("_", mt2)) {
-        parts <- str_split(mt2, "_", n = 2)[[1]]
+        parts <- stringr::str_split(mt2, "_", n = 2)[[1]]
       } else {
-        # si pas de séparateur, on met tout dans le nom, valeur NA
         parts <- c(mt2, NA_character_)
       }
 
@@ -68,19 +62,7 @@ import_from_iramuteq <- function(file) {
     docs[[k]] <- meta_list
   }
 
-  # Convertir la liste de listes en data.frame (remplit les colonnes manquantes avec NA)
-  # Si tu as dplyr à dispo :
   df <- dplyr::bind_rows(docs)
-
-  # Version base R pour être 100% autonome :
-  # all_names <- unique(unlist(lapply(docs, names)))
-  # df <- do.call(
-  #   rbind,
-  #   lapply(docs, function(x) {
-  #     x[setdiff(all_names, names(x))] <- NA
-  #     x[all_names]
-  #   })
-  # )
 
   df <- as.data.frame(df, stringsAsFactors = FALSE)
   rownames(df) <- NULL
@@ -99,8 +81,9 @@ import_from_iramuteq <- function(file) {
 #' @export
 #'
 #' @examples
-#' df <- janeaustenr::austen_books()
-#' export_to_iramuteq(df,"book","text",tempfile())
+#' df <- janeaustenr::austen_books()[1:10,]
+#' path_txt <- file.path(tempfile(fileext=".txt"))
+#' export_to_iramuteq(df,"book","text",path_txt)
 export_to_iramuteq <- function(df, meta_cols, text_col, output_file) {
 
   stopifnot("text" %in% names(df))

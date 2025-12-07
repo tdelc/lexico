@@ -27,5 +27,5 @@ vector of character
 Clean a text variable of a df
 }
 \examples{
-clean_df_text(janeaustenr::austen_books(),"text")
+clean_df_text(janeaustenr::austen_books()$text)
 }
