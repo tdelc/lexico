@@ -20,11 +20,15 @@ clean_df_text <- function(vec_text,
   multiwords_ <- stringr::str_replace_all(multiwords, "\\s+", "_")
   names(multiwords_) <- multiwords
 
+  vec_text <- tolower(vec_text)
+  vec_text <- remove_apostrophe(vec_text)
+  vec_text <- stringr::str_replace_all(vec_text, recode_words)
   vec_text <- stringr::str_remove_all (vec_text, stopwords_regex)
   vec_text <- stringr::str_replace_all(vec_text, multiwords_)
-  vec_text <- stringr::str_replace_all(vec_text, recode_words)
+  vec_text <- stringr::str_squish(vec_text)
 
   vec_text
 }
 
+# clean_df_text("Retrouvez l'interview en intégralité du premier ministre François berou")
 

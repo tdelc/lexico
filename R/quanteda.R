@@ -14,6 +14,7 @@ corpus_to_tokens <- function(corpus,
                              recode_words = get_recode_words(),
                              stopwords = get_specific_stopwords(),
                              multiwords = get_specific_multiwords()){
+
   quanteda::tokens(corpus) %>%
     quanteda::tokens(
       remove_punct = TRUE,
