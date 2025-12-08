@@ -55,7 +55,7 @@ get_playlist_items <- function(api_key, playlist_id, max_results = 100) {
     if (is.null(next_page_token)) break
   }
 
-  df
+  df[1:max_results,]
 }
 
 #' Get details from youtube videos

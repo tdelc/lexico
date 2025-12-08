@@ -13,6 +13,10 @@ raw_path      <- "~/GitHub/lexico/docs/scrap info 2025/raw"
 data_path     <- "~/GitHub/lexico/docs/scrap info 2025/data"
 iramuted_path <- "~/GitHub/lexico/docs/scrap info 2025/iramuteq"
 
+df <- readRDS(file.path(data_path,"df.rds"))
+chaine_info <- c("BFMTV","CNEWS","France Info","LCI")
+df_sub <- df %>% filter(channel %in% chaine_info)
+
 corpus_path <- file.path(iramuted_path,"corpus_text_corpus_1/corpus_text_alceste_4")
 
 df_sub2 <- import_from_iramuteq(file.path(corpus_path,"export_corpus.txt"))
@@ -38,18 +42,6 @@ df_classe_text <- df_sub2_full %>%
 df_sub2_full <- df_sub2_full %>%
   left_join(df_classe_text %>% select(channel,video_id,classe_text))
 
-df_sub2_text_FD <- df_sub2_full %>%
-  select(video_id, year_video, channel, classe_text, text = text_full) %>%
-  distinct() %>%
-  filter(classe_text == 'Faits divers')
-
-# Rexporter spécifiquement pour en faire un sous corpus
-export_to_iramuteq(df          = tibble(df_sub2_text_FD),
-                   meta_cols   = c("video_id","year_video","channel"),
-                   text_col    = "text",
-                   output_file = file.path(iramuted_path,"corpus_text_FD.txt")
-)
-
 
 # Pour avoir le % de la vidéo
 df_sub2_full <- df_sub2_full %>%
@@ -60,6 +52,15 @@ df_sub2_full <- df_sub2_full %>%
          ) %>%
   ungroup()
 
+couleur_gt <- function(gt){
+  gt %>%
+    data_color(columns = Économie, method = "numeric",palette = c("white", "red")) %>%
+    data_color(columns = Politique, method = "numeric",palette = c("white", "grey")) %>%
+    data_color(columns = Géopolitique, method = "numeric",palette = c("white", "green")) %>%
+    data_color(columns = Justice, method = "numeric",palette = c("white", "blue")) %>%
+    data_color(columns = `Faits divers`, method = "numeric",palette = c("white", "purple"))
+}
+
 # Simple % des segments par chaîne
 df_sub2_full %>%
   count(channel,classe) %>%
@@ -69,8 +70,9 @@ df_sub2_full %>%
   mutate(All = 1) %>%
   gt(rowname_col = "channel") %>%
   fmt_percent(decimals = 1) %>%
-  data_color(columns = -All, direction = "row",na_color = "white",
-             method = "numeric",palette = c("white", "black"))
+  couleur_gt() %>%
+  gt::tab_header("Classification des vidéos") %>%
+  gt::tab_source_note(glue::glue("Source : 2213 vidéos extraites de Youtube"))
 
 # Ici, c'est une stat sur les segments, comment faire pour avoir la même chose
 # par vidéo, en imaginant prendre la classe dominante
@@ -86,11 +88,7 @@ df_sub2_full %>%
   gt(rowname_col = "channel") %>%
   fmt_percent(decimals = 1) %>%
   fmt_missing() %>%
-  data_color(columns = Économie, method = "numeric",palette = c("white", "red")) %>%
-  data_color(columns = Politique, method = "numeric",palette = c("white", "grey")) %>%
-  data_color(columns = Géopolitique, method = "numeric",palette = c("white", "green")) %>%
-  data_color(columns = Justice, method = "numeric",palette = c("white", "blue")) %>%
-  data_color(columns = `Faits divers`, method = "numeric",palette = c("white", "purple")) %>%
+  couleur_gt() %>%
   gt::tab_header("Classification des vidéos") %>%
   gt::tab_source_note(glue::glue("Source : 2213 vidéos extraites de Youtube"))
 
@@ -107,13 +105,15 @@ df_sub2_full %>%
   mutate(All = 1) %>%
   gt(rowname_col = "channel") %>%
   fmt_percent(decimals = 1) %>%
-  data_color(columns = -All, direction = "row",na_color = "white",
-             method = "numeric",palette = c("white", "black"))
+  couleur_gt() %>%
+  gt::tab_header("Classification des vidéos") %>%
+  gt::tab_source_note(glue::glue("Source : 2213 vidéos extraites de Youtube"))
 
 
 # Tiens, quels sont les % de classe des segments, lorsque le classe text est ceci
 df_sub2_full %>%
-  filter(classe_text == 5) %>%
+  # filter(classe_text == "Faits divers") %>%
+  filter(classe_text == "Justice") %>%
   count(channel,classe) %>%
   group_by(channel) %>% mutate(n = n/sum(n)) %>% ungroup() %>%
   arrange(classe) %>%
@@ -121,8 +121,7 @@ df_sub2_full %>%
   arrange(channel) %>%
   gt(rowname_col = "channel") %>%
   fmt_percent(decimals = 1) %>%
-  data_color(direction = "row",na_color = "white",
-             method = "numeric",palette = c("white", "black"))
+  couleur_gt()
 
 # Tiens, par playlist, quel est le % de tel classe
 df_sub2_full %>%
@@ -135,11 +134,7 @@ df_sub2_full %>%
   gt(rowname_col = "playlistDescription",groupname_col = "channel") %>%
   fmt_missing() %>%
   fmt_percent(decimals = 1) %>%
-  data_color(columns = Économie, method = "numeric",palette = c("white", "red")) %>%
-  data_color(columns = Politique, method = "numeric",palette = c("white", "grey")) %>%
-  data_color(columns = Géopolitique, method = "numeric",palette = c("white", "green")) %>%
-  data_color(columns = Justice, method = "numeric",palette = c("white", "blue")) %>%
-  data_color(columns = `Faits divers`, method = "numeric",palette = c("white", "purple")) %>%
+  couleur_gt() %>%
   gt::tab_header("Classification des vidéos") %>%
   gt::tab_source_note(glue::glue("Source : 2213 vidéos extraites de Youtube"))
 
@@ -152,8 +147,9 @@ df_sub2_full %>%
   gt(rowname_col = "playlistDescription",groupname_col = "channel") %>%
   fmt_missing(missing_text = "0%") %>%
   fmt_percent(decimals = 1) %>%
-  data_color(direction = "row", na_color = "white",
-             method = "numeric",palette = c("white", "black"))
+  couleur_gt() %>%
+  gt::tab_header("Classification des vidéos") %>%
+  gt::tab_source_note(glue::glue("Source : 2213 vidéos extraites de Youtube"))
 
 
 vec_classe_all <- c("black","red","grey","green","blue","purple")
@@ -163,9 +159,10 @@ df_sub2_full %>%
   select(channel,video_id,classe_text) %>% distinct() %>%
   count(channel,classe_text) %>%
   ggplot()+
-  aes(x=channel,y=n,fill=classe_text)+
+-  aes(x=channel,y=n,fill=classe_text)+
   geom_bar(stat = "identity")+
-  scale_fill_manual(values = vec_classe_all)
+  scale_fill_manual(values = vec_classe_all)+
+  coord_flip()
 
 df_sub2_full %>%
   select(channel,video_id,classe_text) %>% distinct() %>%
@@ -178,6 +175,7 @@ df_sub2_full %>%
 
 # Je voudrais savoir le % de chaque classe selon le moment de la vidéo
 syn <- df_sub2_full %>%
+  filter(classe_text == "Politique") %>%
   count(channel,classe_morceau,classe) %>%
   group_by(channel,classe_morceau) %>% mutate(n = n/sum(n))
 
@@ -256,6 +254,6 @@ dfm_group %>%
   dfm_subset(classe_text != "Autre") %>%
   textplot_wordcloud(comparison = T, color = vec_classe)
 
-dfm_group %>% textstat_keyness(target = "5") %>% textplot_keyness()
+dfm_group %>% textstat_keyness(target = "Faits divers") %>% textplot_keyness()
 
 quanteda::topfeatures(dfm_group)
