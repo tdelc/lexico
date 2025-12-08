@@ -1,6 +1,5 @@
 .Rproj.user
 docs
-docs/.env.R
 docs/data
 docs/raw
 docs/iramuteq
@@ -9,3 +8,4 @@ docs/iramuteq
 .httr-oauth
 .DS_Store
 .quarto
+.Renviron

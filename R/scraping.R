@@ -180,6 +180,7 @@ read_vtt_as_text <- function(vtt_file) {
 #' Run a complete extraction for a playlist id
 #'
 #' @param api_key youtube api key
+#' @param yt_dlp_path path to yt_dlp
 #' @param path path to save subtitles
 #' @param suffix suffix to identify the playlist
 #' @param playlist_id id of the playlist
@@ -188,6 +189,7 @@ read_vtt_as_text <- function(vtt_file) {
 #' @returns NULL
 #' @export
 run_complete_extraction <- function(api_key,
+                                    yt_dlp_path,
                                     path,
                                     suffix,
                                     playlist_id,
