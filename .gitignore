@@ -1,8 +1,8 @@
 .Rproj.user
-docs
-docs/data
-docs/raw
-docs/iramuteq
+docs/*/data
+docs/*/raw
+docs/*/iramuteq
+docs/*/publication
 .Rhistory
 .RData
 .httr-oauth
