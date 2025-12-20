@@ -3,6 +3,7 @@ docs/*/data
 docs/*/raw
 docs/*/iramuteq
 docs/*/publication
+docs/*/dashboard
 .Rhistory
 .RData
 .httr-oauth

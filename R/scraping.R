@@ -144,39 +144,6 @@ download_subtitles <- function(video_id,
   invisible(res)
 }
 
-#' Convert subtitles file to text
-#'
-#' @param vtt_file name of a subtitles file
-#'
-#' @returns data.frame
-#' @export
-read_vtt_as_text <- function(vtt_file) {
-  lines <- readLines(vtt_file, warn = FALSE, encoding = "UTF-8")
-
-  # On enlève l'entête et les lignes vides
-  lines <- lines[lines != "" & lines != "WEBVTT"]
-  lines <- lines[lines != "Kind: captions" & lines != "Language: fr"]
-
-  # On enlève les timecodes (lignes contenant -->)
-  lines <- lines[!grepl("-->", lines)]
-
-  # On enlève les lignes contenant des <c>
-  text_lines <- lines[!grepl("<c>", lines)]
-  text_lines <- unique(text_lines)
-
-  # On colle tout en un seul texte
-  full_text <- paste(text_lines, collapse = " ")
-
-  # Récupérer l'ID vidéo à partir du nom de fichier (avant le premier point)
-  file_name <- basename(vtt_file)
-  video_id <- sub("\\..*$", "", file_name)
-
-  dplyr::tibble(
-    video_id = video_id,
-    text = full_text
-  )
-}
-
 #' Run a complete extraction for a playlist id
 #'
 #' @param api_key youtube api key
@@ -237,6 +204,22 @@ run_complete_extraction <- function(api_key,
 
   utils::write.csv(df_text,file=path_text,row.names = F)
   return(NULL)
+}
+
+vtt_files_to_df <- function(path,
+                            suffix){
+
+  path_text <- file.path(path,paste0("df_text_",suffix,".csv"))
+  dir_path <- file.path(path,paste0("subs_",suffix))
+
+  list_files <- list.files(dir_path, pattern = "\\.vtt$", full.names = TRUE)
+
+  cli::cli_process_start("Extraction du folder {suffix}")
+  df_text <- list_files %>% purrr::map_dfr(read_vtt_as_df_fast,.progress = TRUE)
+  df_text$suffix <- suffix
+  cli::cli_process_done()
+
+  utils::write.csv(df_text,file=path_text,row.names = F)
 }
 
 #' Get duration of a youtube video

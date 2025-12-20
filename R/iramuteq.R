@@ -103,3 +103,55 @@ export_to_iramuteq <- function(df, meta_cols, text_col, output_file) {
   writeLines(corpus, output_file, useBytes = TRUE)
   return(NULL)
 }
+
+read_iramuteq_class <- function(file, classe = 1) {
+
+  x <- readLines(file, encoding = "UTF-8", warn = FALSE)
+
+  # repérer le début de la classe
+  start <- which(str_detect(
+    x,
+    paste0("^classe\\s+", classe, "\\s+-")
+  ))
+
+  if (length(start) == 0) stop("Classe non trouvée")
+
+  # lignes après le titre de classe
+  x2 <- x[(start + 1):length(x)]
+
+  # on garde uniquement les lignes commençant par un rang numérique
+  rows <- x2[str_detect(x2, "^\\s*\\d+\\|")]
+
+  # stop dès qu'on atteint une autre classe ou une ligne vide
+  rows <- rows[!str_detect(rows, "^classe\\s+")]
+  rows <- rows[rows != ""]
+
+  rows <- rows[!str_detect(rows,"NS \\(")]
+
+  # parsing ligne par ligne
+  # res <- lapply(rows, function(l) {
+  res <- tibble(NULL)
+  for (l in rows){
+
+    parts <- str_split(l, "\\|", simplify = TRUE)
+    parts <- trimws(parts)
+
+    res_temp <- tibble(
+      rang        = as.integer(parts[1]),
+      freq_classe = as.integer(parts[2]),
+      freq_totale = as.integer(parts[3]),
+      pct         = as.numeric(parts[4]),
+      chi2        = as.numeric(parts[5]),
+      pos         = parts[6],
+      forme       = parts[7],
+      # CORRIGER ICI
+      p_value     = str_extract(l, "<\\s*[0-9,.]+")
+    )
+    res <- bind_rows(res,res_temp)
+  }
+
+  res %>%
+    mutate(forme = str_squish(str_remove(forme,p_value)))
+}
+
+

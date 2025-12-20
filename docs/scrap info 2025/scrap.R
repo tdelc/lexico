@@ -74,11 +74,15 @@ df_playlist <- dplyr::tibble(
 write.csv(df_playlist,file.path(raw_path,"df_playlist.csv"),row.names = F)
 
 df_playlist_info <- df_playlist %>%
-  filter(suffix %in% c("cne","eur","fra","lci","bfm"))
+  dplyr::filter(suffix %in% c("cne","eur","fra","lci","bfm"))
 
-1:nrow(df_playlist_info) %>% purrr::map(~{
-  row <- df_playlist_info[.x,]
-  cli::cli_alert_info("Extraction {row$playlistDescription}")
-  run_complete_extraction(api_key,yt_dlp,raw_path,
-                          row$suffix,row$playlist_id,max_videos)
-})
+# 1:nrow(df_playlist_info) %>% purrr::map(~{
+#   row <- df_playlist_info[.x,]
+#   cli::cli_alert_info("Extraction {row$playlistDescription}")
+#   run_complete_extraction(api_key,yt_dlp,raw_path,
+#                           row$suffix,row$playlist_id,max_videos)
+# })
+
+unique(df_playlist_info$suffix) %>% purrr::map(~vtt_files_to_df(raw_path,.x))
+
+vtt_files_to_df(raw_path,"bfm")
