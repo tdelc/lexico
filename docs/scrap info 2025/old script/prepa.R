@@ -5,11 +5,10 @@ load_all()
 
 raw_path      <- "~/GitHub/lexico/docs/scrap info 2025/raw"
 data_path     <- "~/GitHub/lexico/docs/scrap info 2025/data"
+dic_path     <- "~/GitHub/lexico/docs/scrap info 2025/dictionary"
 iramuted_path <- "~/GitHub/lexico/docs/scrap info 2025/iramuteq"
 
 df_playlist <- read.csv(file.path(raw_path,"df_playlist.csv"))
-
-# raw_path      <- "~/GitHub/lexico/docs/scrap info 2025/raw/df OLD"
 
 list_df_info <- list.files(raw_path,"df_info_.*?\\.csv$", full.names = TRUE)
 list_df_stat <- list.files(raw_path,"df_stat_.*?\\.csv$", full.names = TRUE)
@@ -87,7 +86,7 @@ df %>% dplyr::count(video_id) %>% filter(n>1) %>% nrow()
 df[df$channel == "BLAST, Le souffle de l'info","channel"] <- "BLAST"
 df[df$channel == "franceinfo","channel"] <- "France Info"
 
-# On retombe bien sur les 8177 vidéos de départ
+# On retombe bien sur les 12001 vidéos de départ
 
 # Réunion avec les textes par segment
 df_full <- df %>%
@@ -102,8 +101,7 @@ df_full <- df_full %>%
 # Retirer certaines vidéos sans text (sans doute car vidéo privée)
 df_full <- df_full %>% filter(!is.na(text))
 df <- df %>% filter(video_id %in% unique(df_full$video_id))
-# On perd seulement 139 vidéos
-
+# On perd beaucoup de vidéos, on retombe à 8156 vidéos
 
 df %>%
   group_by(channel) %>%
@@ -144,23 +142,64 @@ df %>%
 df[df$suffix == "eur","channel"] <- "CNEWS"
 df_full[df_full$suffix == "eur","channel"] <- "CNEWS"
 
-# Se limiter seulement à 2025
-df <- df %>% filter(year_video == 2025)
+# Channel par année
+table(df$channel,df$year_video,useNA = "ifany")
+
+# Se limiter seulement à 2024 (tant pis pour BFM)
+df <- df %>% filter(year_video %in% 2024:2025)
 
 # limiter les textes aux IDs conservés
 df_full <- df_full %>% filter(video_id %in% unique(df$video_id))
 
-saveRDS(df     ,file = file.path(data_path,"df.rds"))
-saveRDS(df_full,file = file.path(data_path,"df_full.rds"))
+#### Correction orthographique #####
+
+# Regrouper les mots qui vont ensemble
+multiwords <- get_specific_multiwords()
+multiwords_ <- stringr::str_replace_all(multiwords, "\\s+", "_")
+names(multiwords_) <- multiwords
+
+df_clean <- df_full %>%
+  mutate(text = tolower(text),
+         text = str_replace_all(text, get_recode_words()),
+         text = str_replace_all(text, multiwords_),
+         text = str_squish(text))
+
+# Supprimer les []
+df_clean <- df_clean %>%
+  mutate(text = str_remove_all(text,"\\[[a-z]+?\\]"),
+         text = str_squish(text))
+
+# Charger dictionnaire français local
+# fr_dict <- hunspell::dictionary("fr_FR")
+#
+# bad <- hunspell(df_clean$text, dict = fr_dict)
+# vec_bad <- unlist(bad)
+# as.data.frame(table(vec_bad)) %>%
+#   arrange(-Freq)
+
+saveRDS(df      ,file = file.path(data_path,"df.rds"))
+saveRDS(df_clean,file = file.path(data_path,"df_full.rds"))
 
 #### Export Iramuteq ####
 
 chaine_info <- c("BFMTV","CNEWS","France Info","LCI")
-df_sub <- df_full %>% filter(channel %in% chaine_info)
+df_sub <- df_clean %>% filter(channel %in% chaine_info)
 
 # Choisir un regroupement des segments
 df_grp <- df_sub %>% group_minuted_text(1) %>%
   left_join(df %>% select(video_id,year_video,channel))
+
+# Il y a parfois des segments trop court en fin de vidéos, à supprimer
+df_grp <- df_grp %>%
+  mutate(wordsCount = str_count(text,"\\S+"))
+
+hist(df_grp$wordsCount)
+
+
+
+df_grp %>%
+  filter(wordsCount<100) %>%
+  pull(text)
 
 export_to_iramuteq(df          = df_grp,
                    meta_cols   = c("video_id","year_video","channel"),

@@ -1,0 +1,59 @@
+---
+title: "Préparer et exploiter des corpus avec IRaMuTeQ"
+author: "lexico"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Préparer et exploiter des corpus avec IRaMuTeQ}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+Cette vignette montre comment exporter un tableau de textes vers le
+format attendu par IRaMuTeQ, puis comment réimporter les résultats de
+classification.
+
+## Construire le fichier .txt pour IRaMuTeQ
+
+`export_to_iramuteq()` attend un data.frame contenant au moins une colonne
+texte et des colonnes de métadonnées. Chaque ligne devient un document.
+
+```{r export}
+library(lexico)
+library(dplyr)
+
+# Exemple minimal avec janeaustenr
+df <- janeaustenr::austen_books() |>
+  mutate(doc_id = paste0(book, "_", row_number())) |>
+  select(doc_id, book, text)
+
+txt_path <- tempfile(fileext = ".txt")
+export_to_iramuteq(
+  df = df,
+  meta_cols = c("doc_id", "book"),
+  text_col = "text",
+  output_file = txt_path
+)
+```
+
+Le fichier généré contient un en-tête `****` suivi des variables
+métadonnées préfixées par `*` et du texte nettoyé des retours à la ligne.
+
+## Lire un corpus IRaMuTeQ existant
+
+Pour transformer un corpus `****` en tableau R, utilisez
+`import_from_iramuteq()` :
+
+```{r import}
+reimported <- import_from_iramuteq(txt_path)
+head(reimported)
+```
+
+Chaque métadonnée devient une colonne ; le texte est stocké dans `text`.

@@ -1,13 +1,6 @@
-
-library(devtools)
-load_all()
-
-yt_dlp  <- Sys.getenv("YT_DLP_PATH")
-api_key <- Sys.getenv("YT_API_KEY")
-
-max_videos  <- 1000
-
-raw_path    <- "~/GitHub/lexico/docs/scrap info 2025/raw"
+# -------------------------------------------------------------------------
+# 1) Définir les playlists à récupérer
+# -------------------------------------------------------------------------
 
 df_playlist <- dplyr::tibble(
                  suffix = "bfm",
@@ -26,6 +19,10 @@ df_playlist <- dplyr::tibble(
                  channelTitle = "franceinfo",
                  playlist_id = "PLg6GanYvTasWQv6EPyPInaYhtyFRcht3r",
                  playlistDescription = "Interview de 8:30") %>%
+  dplyr::add_row(suffix = "fra",
+                 channelTitle = "franceinfo",
+                 playlist_id = "PLg6GanYvTasUlJYuk2RWi38V0iEyeeyQ4",
+                 playlistDescription = "Les sujets du 20h") %>%
   dplyr::add_row(suffix = "lci",
                  channelTitle = "LCI",
                  playlist_id = "PLdzIP_iC3tqs5NAMpAw8SXV94OE_BmmI0",
@@ -69,20 +66,43 @@ df_playlist <- dplyr::tibble(
   dplyr::add_row(suffix = "int",
                  channelTitle = "France Inter",
                  playlist_id = "PL43OynbWaTMIw5ZnukRdGVNKF5g7uakaD",
-                 playlistDescription = "8h20 Grand Entretien")
+                 playlistDescription = "8h20 Grand Entretien") %>%
+  dplyr::add_row(suffix = "int",
+                 channelTitle = "France Inter",
+                 playlist_id = "PL43OynbWaTMIMtr7RFamX30vEt_C9sSnT",
+                 playlistDescription = "Questions politiques") %>%
+  dplyr::add_row(suffix = "int",
+                 channelTitle = "France Inter",
+                 playlist_id = "PL43OynbWaTMK5iS5F--GDXzk0gH2XxdRX",
+                 playlistDescription = "Débat de la grande matinale") %>%
+  dplyr::add_row(suffix = "int",
+                 channelTitle = "France Inter",
+                 playlist_id = "PL43OynbWaTMIMtr7RFamX30vEt_C9sSnT",
+                 playlistDescription = "Questions politiques") %>%
+  dplyr::add_row(suffix = "int",
+                 channelTitle = "France Inter",
+                 playlist_id = "PL43OynbWaTMLFi_Oj872nxqDeUGBNNRp4",
+                 playlistDescription = "Édito politique")
 
-write.csv(df_playlist,file.path(raw_path,"df_playlist.csv"),row.names = F)
+
+write.csv(df_playlist,file.path(paths$raw,"df_playlist.csv"),row.names = F)
 
 df_playlist_info <- df_playlist %>%
-  dplyr::filter(suffix %in% c("cne","eur","fra","lci","bfm"))
+  dplyr::filter(suffix %in% params$channels_info)
 
-# 1:nrow(df_playlist_info) %>% purrr::map(~{
-#   row <- df_playlist_info[.x,]
-#   cli::cli_alert_info("Extraction {row$playlistDescription}")
-#   run_complete_extraction(api_key,yt_dlp,raw_path,
-#                           row$suffix,row$playlist_id,max_videos)
-# })
+1:nrow(df_playlist_info) %>% purrr::map(~{
+  row <- df_playlist_info[.x,]
+  cli::cli_alert_info("Extraction {row$playlistDescription}")
+  run_complete_extraction(params$api_key,params$yt_dlp,paths$raw,
+                          row$suffix,row$playlist_id,params$max_videos)
+})
 
-unique(df_playlist_info$suffix) %>% purrr::map(~vtt_files_to_df(raw_path,.x))
+unique(df_playlist_info$suffix) %>% purrr::map(~vtt_files_to_df(paths$raw,.x))
 
-vtt_files_to_df(raw_path,"bfm")
+
+# vtt_path    <- "~/GitHub/lexico/inst/extdata/subs_bfm/"
+#
+# vtt_files_to_df("~/GitHub/lexico/inst/extdata","bfm")
+#
+#
+# vtt_files_to_df(raw_path,"bfm")

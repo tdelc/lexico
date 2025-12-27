@@ -152,7 +152,7 @@ get_dictionary <- function(){
 get_specific_stopwords <- function(){
   c(stopwords::stopwords('fr'),
     "c'est","ça","qu'on","a","ya","news","lci","bfm","tv","blast",
-    "le média","cnews","new","europe1","bfmactu","tf1","rmc","bfmtv",
+    "le média","cnews","new","europe1","europe 1","bfmactu","tf1","rmc","bfmtv",
     "grande_interview","france_info","europin",
     "donc","plus","fait","tout","euh","qu'il","parce","dire",
     "bien","quand","faut","si","très","faire","france","aussi",
@@ -191,13 +191,29 @@ get_specific_stopwords <- function(){
 #' @examples
 #' get_specific_multiwords()
 get_specific_multiwords <- function(){
-  c("grande interview","rassemblement national","front national",
-    "les républicains","front populaire","bruno retailleau",
-    "alain duamel","intelligence artificielle","donald trump",
-    "france info","emmanuel macron","nicolas sarkozy",
-    "gabriel attal","jordan bardella","marine le pen",
-    "los angeles","françois hollande","françois bayrou",
-    "jean michel aphatie","jean luc mélenchon","jean-luc mélenchon",
+  c("grande interview",
+    "rassemblement national",
+    "front national",
+    "les républicains",
+    "front populaire",
+    # "bruno retailleau",
+    # "alain duamel",
+    "intelligence artificielle",
+    # "donald trump",
+    "france info",
+    # "emmanuel macron",
+    # "nicolas sarkozy",
+    # "gabriel attal",
+    # "jordan bardella",
+    # "marine le pen",
+    "le pen",
+    "los angeles",
+    # "françois hollande",
+    # "françois bayrou",
+    # "jean michel aphatie",
+    "jean michel",
+    # "jean luc mélenchon",
+    # "jean-luc mélenchon",
     "premier ministre")
 }
 
@@ -209,14 +225,86 @@ get_specific_multiwords <- function(){
 #' @examples
 #' get_recode_words()
 get_recode_words <- function(){
-  c(
+  recoded <- c(
     "sarkozi" = "sarkozy",
     "atal" = "attal",
+    "hatal" = "attal",
+    "baayrou" = "bayrou",
+    "baayou" = "bayrou",
     "berou" = "bayrou",
-    "rn" = "rassemblement national",
-    "lia" = "intelligence artificielle",
-    "lr" = "les républicains"
+    "berrou" = "bayrou",
+    "baou" = "bayrou",
+    "baïou" = "bayrou",
+    # "rn" = "rassemblement national",
+    # "lia" = "intelligence artificielle",
+    # "lr" = "les républicains",
+    "c'està" = "c'est à",
+    "c'estàd" = "c'est à d",
+    "c'estàdire" = "c'est à dire",
+    "c'està-dire" = "c'est à dire",
+    "rotillot" = "retailleau",
+    "rotaillot" = "retailleau",
+    "rotillo" = "retailleau",
+    "weekend" = "week-end",
+    "délinquence" = "délinquance",
+    "zelenski" = "zelensky",
+    "jordane" = "jordan",
+    "lecnu" = "lecornu",
+    "gluxman" = "glucksmann",
+    "gluxman" = "glucksmann",
+    "Lucy" = "Lucie",
+    "queil" = "que il",
+    "troisème" = "troisième",
+    "cétait" = "c'était",
+    "europin" = "europe 1",
+    "voquier" = "Vauquier",
+    "vquier" = "Vauquier",
+    "voquet" = "Vauquier",
+    "netaniaou" = "netanyahou",
+    "netanahou" = "netanyahou",
+    "netaniaahou" = "netanyahou",
+    "matigon" = "matignon",
+    "bonpard" = "bompard",
+    "fériers" = "février",
+    "férier" = "février",
+    "lebret" = "le bret",
+    "quinquena" = "quinquennat",
+    "bardellaa" = "bardella",
+    "mayot" = "mayotte",
+    "jeis" = "je suis",
+    "surcis" = "sursis",
+    "làdessus" = "là-dessus",
+    "hzbollah" = "hezbollah",
+    "panau" = "panot",
+    "ellisabeth" = "elisabeth",
+    "armanin" = "darmanin",
+    "mitteran" = "mitterand",
+    "narrive" = "n'arrive",
+    "évidment" = "évidemment",
+    "d'étatmajor" = "d'état major",
+    "puisquil" = "puis qu'il",
+    "banlieux" = "banlieu",
+    "d'obtempéré" = "d'obtempérer",
+    "mélanchon" = "mélenchon",
+    "politiqu" = "politique",
+    "minist" = "ministre",
+    "puisquon" = "puisqu'on",
+    "politiquee" = "politique",
+    "ministrere" = "ministère",
+    "franceise " = "france insoumise",
+    "jean luc" = "jean-luc",
+    "anouna" = "hanouna"
   )
+
+  # patterns (regex) : on match le mot fautif entouré de non-lettres
+  patterns <- paste0("(^|[^a-z])(", names(recoded), ")([^a-z]|$)")
+
+  # replacements : on remet le préfixe/suffixe + la correction
+  replacements <- paste0("\\1", recoded, "\\3")
+
+  out <- replacements
+  names(out) <- patterns
+  out
 }
 
 #' Correct apostrophe

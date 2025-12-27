@@ -10,3 +10,4 @@ docs/*/dashboard
 .DS_Store
 .quarto
 .Renviron
+inst/doc

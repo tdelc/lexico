@@ -1,0 +1,75 @@
+---
+title: "Analyser les textes avec Quanteda"
+author: "lexico"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyser les textes avec Quanteda}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+Cette vignette montre comment passer d'un tableau de textes nettoyés à des
+objets `quanteda` prêts pour l'analyse lexicométrique.
+
+## Du tableau au corpus
+
+Partons d'un data.frame contenant `doc_id`, `date` et `text` (obtenu
+après les étapes de préparation).
+
+```{r corpus}
+library(lexico)
+library(quanteda)
+library(dplyr)
+
+texts <- tibble(
+  doc_id = c("doc1", "doc2"),
+  date = as.Date(c("2024-01-01", "2024-01-08")),
+  text = c("Le Rassemblement national dans les sondages",
+           "La sécurité et la politique européenne")
+)
+
+corp <- corpus(texts, text_field = "text")
+docvars(corp, "date") <- texts$date
+```
+
+## Tokenisation et nettoyage
+
+`corpus_to_tokens()` applique les règles de nettoyage et de recodage
+cohérentes avec la fonction `clean_df_text()`.
+
+```{r tokens}
+toks <- corpus_to_tokens(corp)
+head(toks[[1]], 10)
+```
+
+On peut ensuite construire une matrice document-terme :
+
+```{r dfm}
+dfm_mat <- dfm(toks)
+dfm_mat
+```
+
+## Utiliser le dictionnaire fourni
+
+Le package inclut un dictionnaire thématique prêt à l'emploi via
+`get_dictionary()`. Il s'utilise directement avec `tokens_lookup()` ou
+`dfm_lookup()`.
+
+```{r dict}
+dico <- get_dictionary()
+dfm_thematic <- dfm_lookup(dfm_mat, dictionary = dico)
+dfm_thematic
+```
+
+`dfm_thematic` permet de suivre l'évolution de thèmes (immigration,
+sécurité, etc.) sur les vidéos analysées. Il peut être agrégé par chaîne
+ou par période avec `dfm_group()` ou `textstat_keyness()` pour comparer
+plusieurs sous-corpus.

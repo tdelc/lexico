@@ -126,7 +126,7 @@ read_iramuteq_class <- function(file, classe = 1) {
   rows <- rows[!str_detect(rows, "^classe\\s+")]
   rows <- rows[rows != ""]
 
-  rows <- rows[!str_detect(rows,"NS \\(")]
+  # rows <- rows[!str_detect(rows,"NS \\(")]
 
   # parsing ligne par ligne
   # res <- lapply(rows, function(l) {
@@ -135,6 +135,10 @@ read_iramuteq_class <- function(file, classe = 1) {
 
     parts <- str_split(l, "\\|", simplify = TRUE)
     parts <- trimws(parts)
+
+    if (str_detect(l,"NS \\(")) break
+
+    p.value <- str_extract(parts[7], "\\s+([0-9,.]+)")
 
     res_temp <- tibble(
       rang        = as.integer(parts[1]),
@@ -145,13 +149,15 @@ read_iramuteq_class <- function(file, classe = 1) {
       pos         = parts[6],
       forme       = parts[7],
       # CORRIGER ICI
-      p_value     = str_extract(l, "<\\s*[0-9,.]+")
+      # p_value     = str_extract(l, "<\\s*[0-9,.]+")
+      p_value     = p.value
     )
     res <- bind_rows(res,res_temp)
   }
 
   res %>%
-    mutate(forme = str_squish(str_remove(forme,p_value)))
+    mutate(forme = str_squish(str_remove(str_remove(forme,p_value),"<")),
+           p_value = as.numeric(str_replace(p_value,",",".")))
 }
 
 

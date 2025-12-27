@@ -29,6 +29,3 @@ clean_df_text <- function(vec_text,
 
   vec_text
 }
-
-# clean_df_text("Retrouvez l'interview en intégralité du premier ministre François berou")
-

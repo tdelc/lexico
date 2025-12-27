@@ -55,7 +55,8 @@ get_playlist_items <- function(api_key, playlist_id, max_results = 100) {
     if (is.null(next_page_token)) break
   }
 
-  df[1:max_results,]
+  df[1:max_results,] %>%
+    dplyr::filter(!is.na(video_id))
 }
 
 #' Get details from youtube videos
@@ -131,6 +132,9 @@ download_subtitles <- function(video_id,
     return(NULL)
   }
 
+  # Créer un faux fichier (pour contourner à forcer les sous-titres vides)
+  file.create(file_path)
+
   args <- c(
     "--write-auto-subs",      # sous-titres automatiques
     "--sub-lang", "fr",       # langue FR
@@ -172,7 +176,9 @@ run_complete_extraction <- function(api_key,
 
   # Previous df
   df_info_prev <- NULL
-  if (file.exists(path_info)) df_info_prev <- utils::read.csv(path_info)
+  if (file.exists(path_info)) df_info_prev <- utils::read.csv(path_info) %>%
+    dplyr::filter(!is.na(video_id)) %>%
+    dplyr::select(-position) %>% dplyr::distinct()
 
   df_stat_prev <- NULL
   if (file.exists(path_stat)){
@@ -187,7 +193,7 @@ run_complete_extraction <- function(api_key,
   df_info <- dplyr::bind_rows(df_info,df_info_prev)
   df_stat <- dplyr::bind_rows(df_stat,df_stat_prev)
 
-  cli::cli_alert_info("Save files df_info_{suffix}",suffix," and df_stat_{suffix}")
+  cli::cli_alert_info("Save files df_info_{suffix} and df_stat_{suffix}")
   utils::write.csv(df_info,file=file.path(path,paste0("df_info_",suffix,".csv")),row.names = F)
   utils::write.csv(df_stat,file=file.path(path,paste0("df_stat_",suffix,".csv")),row.names = F)
 
