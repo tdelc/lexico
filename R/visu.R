@@ -14,16 +14,19 @@ treemap_double_classe <- function(df,title = "Treemap",footer ="",
     filter(n >= 30) %>%
     arrange(id_classe,classe,classe_local) %>%
     # group_by(classe) %>% mutate(id_classe = row_number()) %>% ungroup() %>%
-    mutate(classe_local = paste0(classe_local," (",round(100*n/sum(n)),"%)"))
+    mutate(classe_local = paste0(classe_local," (",round(100*n/sum(n)),"%)")) %>%
+    mutate(n_all = sum(n)) %>%
+    group_by(classe) %>%
+    mutate(classe = paste0(classe," (",round(100*sum(n)/n_all),"%)"))
 
-  print(df_pre_treemap)
+  # print(df_pre_treemap)
 
   pal <- palettes$global$soft
   pal <- pal[order(names(pal), decreasing = FALSE)]
 
   treemap::treemap(df_pre_treemap,
           index = c("classe", "classe_local"), vSize = "n", type = "index",
-          fontsize.labels = c(15, 12),
+          fontsize.labels = c(15, 14),
           fontcolor.labels = c("black", "grey30"),
           fontface.labels = c(2, 1),
           bg.labels = c("transparent"),
@@ -41,8 +44,8 @@ treemap_double_classe <- function(df,title = "Treemap",footer ="",
   )
 
   if (footer == ""){
-    nb_segments <- nrow(df_segment)
-    nb_videos <- df_segment %>% summarise(n=n_distinct(video_id)) %>% pull(n)
+    nb_segments <- nrow(df)
+    nb_videos <- df %>% summarise(n=n_distinct(video_id)) %>% pull(n)
     footer <- glue::glue("Classification basée sur {nb_segments} segments de texte d'une minute issus de {nb_videos} vidéos.")
   }
 
@@ -50,6 +53,6 @@ treemap_double_classe <- function(df,title = "Treemap",footer ="",
   grid::grid.text(
     footer ,
     x = 0.9, y = 0.025,just="right",
-    gp = gpar(fontsize = 10, col = "grey30")
+    gp = grid::gpar(fontsize = 10, col = "grey30")
   )
 }

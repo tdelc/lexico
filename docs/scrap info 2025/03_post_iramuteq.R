@@ -1,9 +1,12 @@
+cli::cli_alert_info("Début du 03_post_iramuteq.R")
 
 # Faire tourner deux fois, un pour le local, un pour le global
 
-path_iramuteq <- c(params$corpus_path_global,corpus_path_local)
+path_iramuteq <- c(params$corpus_path_global,params$corpus_path_local)
 
 path_iramuteq %>% map(~{
+
+  cli::cli_alert_info("Début du corpus {.x}")
 
   # -------------------------------------------------------------------------
   # 1) Charger les données RDS (issues de l'étape précédente)
@@ -129,7 +132,7 @@ path_iramuteq %>% map(~{
   # 5) Obtenir les mots caractéristiques
   # -------------------------------------------------------------------------
 
-  file_classe <- file.path(paths$data,params$corpus_path,"RAPPORT.txt")
+  file_classe <- file.path(paths$data,.x,"RAPPORT.txt")
 
   df_mots_classe <- c(1:(n_classes-1)) %>% map_df(~{
     read_iramuteq_class(file_classe,.x) %>%
@@ -148,3 +151,5 @@ path_iramuteq %>% map(~{
   saveRDS(palettes,       file.path(iramuteq_dir, "palettes.rds"))
 
 })
+
+cli::cli_alert_success("Fin du 03_post_iramuteq.R")

@@ -44,8 +44,8 @@ params <- list(
   corpus_file = "export_corpus.txt",
 
   # Dossier issu de l'étape manuelle Iramuteq
-  corpus_path_global = "corpus_segment_corpus_1/corpus_segment_alceste_1",
-  corpus_path_local  = "corpus_segment_corpus_1/corpus_segment_alceste_4",
+  corpus_path_global = "corpus_segment_corpus_3/corpus_segment_alceste_5",
+  corpus_path_local  = "corpus_segment_corpus_3/corpus_segment_alceste_4",
 
   # Fichier de mapping classes (à créer/éditer manuellement une fois)
   class_map_file = "class_map.csv"

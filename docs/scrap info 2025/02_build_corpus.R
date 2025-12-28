@@ -1,3 +1,4 @@
+cli::cli_alert_info("Début du 02_build_corpus.R")
 
 # -------------------------------------------------------------------------
 # 1) Import brut
@@ -141,7 +142,7 @@ df_long <- df_long %>%
   mutate(wordsCount = str_count(text, "\\S+"))
 
 # -------------------------------------------------------------------------
-# 9) Séparer les informations et les données
+# 9) Créer les df de vidéo et de segments
 # -------------------------------------------------------------------------
 
 # df_video : une ligne par video
@@ -159,7 +160,7 @@ df_video <- df_long %>%
             wordsCount = sum(wordsCount,na.rm = T)) %>%
   ungroup()
 
-df_video %>% group_by(video_id) %>% filter(n()>1)
+stopifnot(df_video %>% group_by(video_id) %>% filter(n()>1) == 0)
 
 df_segment <- df_long %>%
   mutate(id_segment = 1+floor(start/(params$group_minutes*60))) %>%
@@ -186,6 +187,85 @@ df_video <- df_video %>%
 stopifnot(df_segment %>% select(video_id) %>% distinct() %>% nrow() == nrow(df_video))
 
 # -------------------------------------------------------------------------
+# 8) Supprimer les textes en anglais
+# -------------------------------------------------------------------------
+
+# Il y a des segments (surtout classé en guerre) en anglais, je préfère les
+# identifier pour les retirer directement
+
+# Transformation des textes des segments en tokens
+tokens_segment <- tokens(
+  df_segment$text,
+  remove_punct = TRUE,
+  remove_numbers = TRUE) %>%
+  tokens_tolower()
+
+# Obtenir un dictionnaire de mots en français
+dic_path <- "C:\\Users\\tdelc\\AppData\\Roaming\\RStudio\\dictionaries\\languages-system\\fr_FR.dic"
+words_fr <- readLines(dic_path, encoding = "UTF-8")[-1]
+words_fr <- sub("/.*$", "", words_fr)
+dict_fr <- dictionary(list(fr = words_fr))
+
+# Première méthode : si le nombre de mots non reconnu par un dictionnaire
+# français est trop haut
+
+nb_mots_fr <- dfm(tokens_segment) %>%
+  dfm_lookup(dict_fr) %>%
+  as.numeric()
+
+# Deuxième méthode : si la proportion de éèà est trop faible
+
+ratio_chars_fr <- function(text) {
+  chars <- strsplit(text, "")[[1]]
+  if (length(chars) < 20) return(NA_real_)
+  mean(chars %in% c("é","è","ê","à","ù","ç","ô","î"))
+}
+
+# Troisième méthode : présence de mots en anglais
+
+stop_en <- stopwords("en")
+
+ratio_stop_en <- tokens_segment %>% lapply(function(x){
+  if (length(x) < 5) return(NA_real_) else mean(x %in% stop_en)
+}) %>% unlist()
+
+df_segment$score_fr       <- nb_mots_fr / ntoken(tokens_segment)
+df_segment$score_chars_fr <- map_dbl(df_segment$text, ratio_chars_fr)
+df_segment$score_stop_en  <- ratio_stop_en
+
+hist(df_segment$score_fr)
+hist(df_segment$score_chars_fr)
+hist(df_segment$score_stop_en)
+
+df_segment %>%
+  filter(ratio_stop_en > 0.1) %>%
+  select(video_id,id_segment,channel,text) %>%
+  gt()
+
+# Check manuel (retrait manuel des segments incriminés)
+df_segment <- df_segment %>%
+  filter(!(video_id == "-YrIOidIFcA" & id_segment == 19),
+         !(video_id == "0_NnzKFrUdw" & id_segment == 13),
+         !(video_id == "LnaoaQFzOl4" & id_segment == 1),
+         !(video_id == "cyPbuZfzW_4" & id_segment == 2),
+         !(video_id == "B27yaz-EXXQ" & id_segment == 3),
+         !(video_id == "HZ0bns5VRfc" & id_segment == 33),
+         !(video_id == "KCpogKuoDTQ" & id_segment == 19),
+         !(video_id == "8kErHKSd-HY" & id_segment == 11),
+         !(video_id == "_LAV5G3mZs4" & id_segment == 16),
+         !(video_id == "yHEsYVXZntU" & id_segment == 18),
+         !(video_id == "Q3lPHTl62gA" & id_segment == 12),
+         !(video_id == "0_NnzKFrUdw" & id_segment == 14),
+         !(video_id == "Q3lPHTl62gA" & id_segment == 11),
+         !(video_id == "IMvINKVbqYg" & id_segment == 30),
+         !(video_id == "cyPbuZfzW_4" & id_segment == 2),
+         !(video_id == "VqStUqdJoAY" & id_segment == 3)
+  ) %>%
+  group_by(video_id) %>% mutate(id_segment = row_number()) %>% ungroup()
+
+stopifnot(df_segment %>% select(video_id) %>% distinct() %>% nrow() == nrow(df_video))
+
+# -------------------------------------------------------------------------
 # 10) Sauvegardes RDS et Iramuteq
 # -------------------------------------------------------------------------
 
@@ -199,4 +279,6 @@ export_to_iramuteq(
   text_col    = "text",
   output_file = file.path(paths$data, "corpus_segment.txt")
 )
+
+cli::cli_alert_success("Fin du 02_build_corpus.R")
 

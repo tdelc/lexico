@@ -1,3 +1,4 @@
+cli::cli_alert_info("Début du 04_double_classe.R")
 
 # -------------------------------------------------------------------------
 # 1) Charger les données RDS (issues de l'étape précédente)
@@ -37,6 +38,7 @@ df_segment_classe <- df_segment_classe %>%
       classe_local == "Sport" ~ "Société",
       classe_local == "Gauche" ~ "Politique",
       classe_local == "Droite" ~ "Politique",
+      classe_local == "Police" ~ "Justice",
       classe_local == "Industrie" ~ "Économie",
       classe_local == "Famille" ~ "Société",
       classe_local == "Journalisme" ~ "Société",
@@ -45,7 +47,7 @@ df_segment_classe <- df_segment_classe %>%
 
 df_segment_classe <- df_segment_classe %>%
   mutate(
-    id_classe = match(classe, names(palettes$global$hard))
+    id_classe = match(classe, names(palettes_local$global$hard))
   )
 
 # id_clivage <- which(names(palettes_global$hard) == "Clivage")
@@ -54,9 +56,13 @@ df_segment_classe <- df_segment_classe %>%
 
 df_segment_classe %>%
   count(classe,classe_local) %>%
+  print(n=100)
+
+df_segment_classe %>%
+  count(classe,classe_local) %>%
   filter(n < sum(n)/row_number()/10)
 
-# Bug, le guerre / Autre est vraiment très court
+# Bug, le Politique / Autre est vraiment très court
 # A voir pour les supprimer
 
 # -------------------------------------------------------------------------
@@ -67,3 +73,6 @@ palettes <- list(global = palettes_global,local = palettes_local)
 
 saveRDS(df_segment_classe, file.path(paths$data, "df_segment_classe.rds"))
 saveRDS(palettes,          file.path(paths$data, "palettes.rds"))
+
+cli::cli_alert_success("Fin du 04_double_classe.R")
+
