@@ -81,7 +81,7 @@ import_from_iramuteq <- function(file) {
 #' @export
 #'
 #' @examples
-#' df <- janeaustenr::austen_books()[1:10,]
+#' df <- janeaustenr::austen_books()
 #' path_txt <- file.path(tempfile(fileext=".txt"))
 #' export_to_iramuteq(df,"book","text",path_txt)
 export_to_iramuteq <- function(df, meta_cols, text_col, output_file) {
@@ -104,6 +104,18 @@ export_to_iramuteq <- function(df, meta_cols, text_col, output_file) {
   return(NULL)
 }
 
+#' Read report from iramuteq to extract words of each class
+#'
+#' @param file path to report file .txt from IRaMuTeQ
+#' @param classe index of class to extract
+#'
+#' @returns data.frame
+#' @export
+#'
+#' @examples
+#' path_iramtueq <- "inst/extdata/corpus_janeausten/corpus_janeausten_alceste_1"
+#' path_txt <- file.path(path_iramtueq,"RAPPORT.txt")
+#' head(read_iramuteq_class(path_txt,1))
 read_iramuteq_class <- function(file, classe = 1) {
 
   x <- readLines(file, encoding = "UTF-8", warn = FALSE)

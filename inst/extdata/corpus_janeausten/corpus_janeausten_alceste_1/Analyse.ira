@@ -1,0 +1,24 @@
+[alceste]
+type = alceste
+lem = 1
+mincl = 0
+nbforme_uce = 0
+max_actives = 20000
+tailleuc1 = 12
+nbcl = 4
+tailleuc2 = 14
+classif_mode = 2
+minforme = 2
+expressions = 1
+nbcl_p1 = 10
+svdmethod = irlba
+mode.patate = 1
+corpus = 472530b7-b40e-4a15-8683-20dafe5a1320
+pathout = C:\Users\tdelc\Documents\GitHub\lexico\inst\extdata\corpus_janeausten\corpus_janeausten_alceste_1
+uuid = 8ee46b4f-24bd-4f6d-ad49-baf583bc9160
+name = corpus_janeausten_alceste_1
+eff_min_forme = 3
+nbactives = 5175
+clnb = 1
+time = 0h 1m 7s
+ira = C:\Users\tdelc\Documents\GitHub\lexico\inst\extdata\corpus_janeausten\corpus_janeausten_alceste_1\Analyse.ira

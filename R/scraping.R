@@ -213,6 +213,13 @@ run_complete_extraction <- function(api_key,
   return(NULL)
 }
 
+#' Convert vtt files to minuted data.frame
+#'
+#' @param path path of vtt files
+#' @param suffix suffix to identify the playlist
+#'
+#' @returns data.frame
+#' @export
 vtt_files_to_df <- function(path,
                             suffix){
 
@@ -222,7 +229,7 @@ vtt_files_to_df <- function(path,
   list_files <- list.files(dir_path, pattern = "\\.vtt$", full.names = TRUE)
 
   cli::cli_process_start("Extraction du folder {suffix}")
-  df_text <- list_files %>% purrr::map_dfr(read_vtt_as_df_fast,.progress = TRUE)
+  df_text <- list_files %>% purrr::map_dfr(read_vtt_as_df,.progress = TRUE)
   df_text$suffix <- suffix
   cli::cli_process_done()
   return(df_text)

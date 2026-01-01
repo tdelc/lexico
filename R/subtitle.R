@@ -4,55 +4,11 @@
 #'
 #' @returns data.frame
 #' @export
+#'
+#' @examples
+#' path_vtt <- file.path("inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt")
+#' read_vtt_as_df(path_vtt)
 read_vtt_as_df <- function(vtt_file) {
-
-  x <- readLines(vtt_file, warn = FALSE, encoding = "UTF-8")
-
-  # repérer les lignes "timecode --> timecode"
-  idx <- which(stringr::str_detect(x, "-->"))
-
-  df <- purrr::map_dfr(idx, function(i) {
-
-    # timecodes
-    times <- stringr::str_extract_all(x[i], "\\d{2}:\\d{2}:\\d{2}\\.\\d{3}")[[1]]
-
-    start <- hms_to_sec(times[1])
-    end   <- hms_to_sec(times[2])
-
-    # texte = lignes suivantes jusqu'à ligne vide
-    text <- x[(i + 1):length(x)+10] |>
-      (\(z) z[!stringr::str_detect(z, "-->")])() |>
-      (\(z) z[seq_len(which(z == "")[1] - 1)])() |>
-      paste(collapse = " ")
-
-    # nettoyage balises <00:00:xx.xxx><c>
-    text <- text |>
-      stringr::str_remove_all("<[^>]+>") |>
-      stringr::str_squish()
-
-    dplyr::tibble(
-      start = start,
-      end   = end,
-      text  = text
-    )
-  })
-
-  # Récupérer l'ID vidéo à partir du nom de fichier (avant le premier point)
-  file_name <- basename(vtt_file)
-  video_id <- sub("\\..*$", "", file_name)
-
-  df %>%
-    dplyr::mutate(n_grp = floor((dplyr::row_number()-1)/3)) %>%
-    dplyr::group_by(n_grp) %>%
-    dplyr::summarise(start = min(start),end = max(end),
-                     text = dplyr::last(text)) %>% dplyr::ungroup() %>%
-    dplyr::select(-n_grp) %>%
-    dplyr::mutate(video_id = video_id)
-}
-
-# docs/scrap info 2025/raw/subs_bfm/XuTN2ObRdUg.fr.vtt
-
-read_vtt_as_df_fast <- function(vtt_file) {
 
   x <- readLines(vtt_file, warn = FALSE, encoding = "UTF-8")
 
@@ -115,6 +71,8 @@ read_vtt_as_df_fast <- function(vtt_file) {
 #' @export
 #'
 #' @examples
+#' df_text <- read.csv("inst/extdata/df_text_bfm.csv")
+#' head(group_minuted_text(df_text,2))
 group_minuted_text <- function(df,minutes,video_id="video_id"){
   secondes <- minutes*60
   df %>%
@@ -126,6 +84,15 @@ group_minuted_text <- function(df,minutes,video_id="video_id"){
 }
 
 
+#' Convert hour:minutes:secondes to secondes
+#'
+#' @param x pattern to convert
+#'
+#' @returns float
+#' @export
+#'
+#' @examples
+#' hms_to_sec("00:25:30.389")
 hms_to_sec <- function(x) {
   h <- as.numeric(stringr::str_sub(x, 1, 2))
   m <- as.numeric(stringr::str_sub(x, 4, 5))
@@ -133,12 +100,17 @@ hms_to_sec <- function(x) {
   h * 3600 + m * 60 + s
 }
 
-#' Convert subtitles file to text
+#' Convert subtitles file to text (OLD)
 #'
 #' @param vtt_file name of a subtitles file
 #'
 #' @returns data.frame
 #' @export
+#'
+#' @examples
+#' path_vtt <- file.path("inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt")
+#' read_vtt_as_text(path_vtt)
+#'
 read_vtt_as_text <- function(vtt_file) {
   lines <- readLines(vtt_file, warn = FALSE, encoding = "UTF-8")
 

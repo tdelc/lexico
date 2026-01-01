@@ -1,11 +1,84 @@
-summarise_sentiments <- function(df){
-  df %>%
-    count(sentiment) %>%
-    mutate(n_all = sum(n), n = n/sum(n)) %>% ungroup() %>%
-    pivot_wider(names_from = sentiment,values_from = n)
+
+#' Get most frequent emotion of a sentiment score df
+#'
+#' @param df_sentiment data.frame from get_nrc_sentiment
+#' @param threshold minimum frequency to keep emotion
+#'
+#' @returns data.frame
+#' @export
+#'
+#' @examples
+#' vec_text <- janeaustenr::austen_books()$text
+#' df_sentiment <- get_nrc_sentiment(vec_text[1:50], lang="english")
+#' df_emotion <- get_dominant_emotion(df_sentiment,2)
+#' count(df_emotion,sentiment)
+get_dominant_emotion <- function(df_sentiment,threshold = 5){
+  sentiment_scores %>%
+    rownames_to_column("id") %>%
+    select(-negative,-positive) %>%
+    pivot_longer(cols = -id) %>%
+    group_by(id) %>%
+    slice_max(value,n=1,with_ties = FALSE) %>%
+    ungroup() %>%
+    rename(sentiment = name) %>%
+    mutate(sentiment = ifelse(value < threshold,"undiff",sentiment))
 }
 
-color_sentiments <- function(gt){
+#' Get most frequent polarity of a sentiment score df
+#'
+#' @param df_sentiment data.frame from get_nrc_sentiment
+#' @param threshold minimum frequency to keep polarity
+#'
+#' @returns data.frame
+#' @export
+#'
+#' @examples
+#' vec_text <- janeaustenr::austen_books()$text
+#' df_sentiment <- get_nrc_sentiment(vec_text[1:50], lang="english")
+#' df_polarity <- get_dominant_polarity(df_sentiment,2)
+#' count(df_polarity,polarity)
+get_dominant_polarity <- function(df_sentiment,threshold = 5){
+  df_sentiment %>%
+    rownames_to_column("id") %>%
+    select(id,negative,positive) %>%
+    pivot_longer(cols = -id) %>%
+    group_by(id) %>%
+    slice_max(value,n=1,with_ties = FALSE) %>%
+    ungroup() %>%
+    rename(polarity = name) %>%
+    mutate(polarity = ifelse(value < threshold,"neutral",polarity))
+}
+
+#' Summarise emotions of a data.frame
+#'
+#' @param df data.frame to summarise
+#'
+#' @returns data.frame
+#' @export
+#'
+#' @examples
+#' vec_text <- janeaustenr::austen_books()$text
+#' df_sentiment <- get_nrc_sentiment(vec_text[1:50], lang="english")
+#' df_emotion <- get_dominant_emotion(df_sentiment,1)
+#' summarise_emotions(df_emotion)
+summarise_emotions <- function(df){
+
+  vec_emotions <- c("undiff","joy","fear","sadness","anger","disgust",
+                    "surprise","trust","anticipation")
+
+  tibble(emotion= vec_emotions) %>%
+    left_join(df %>% count(emotion)) %>%
+    replace_na(list(n = 0)) %>%
+    mutate(n_all = sum(n), n = n/sum(n)) %>% ungroup() %>%
+    pivot_wider(names_from = emotion,values_from = n)
+}
+
+#' Color gt with emotions
+#'
+#' @param gt gt to color
+#'
+#' @returns gt
+color_emotions <- function(gt){
   gt %>%
     data_color(columns = c(undiff),method = "numeric",
                palette = c("white", "#9E9E9E"),na_color = "white") %>%
@@ -27,9 +100,15 @@ color_sentiments <- function(gt){
                palette = c("white", "#26A69A"),na_color = "white")
 }
 
-label_sentiments <- function(gt){
+#' Label gt with emotions
+#'
+#' @param gt gt to label
+#'
+#' @returns gt
+label_emotions <- function(gt){
   gt %>%
-    cols_label(undiff  = "Indéterminé",
+    cols_label(
+      undiff   = "Indéterminé",
       joy      = "Joie",
       fear     = "Peur",
       sadness  = "Tristesse",
@@ -41,20 +120,53 @@ label_sentiments <- function(gt){
     )
 }
 
-format_sentiments <- function(gt){
+#' Format gt with emotions
+#'
+#' @param gt gt to format : label, color, percent
+#'
+#' @returns gt
+#' @export
+#'
+#' @examples
+#' vec_text <- janeaustenr::austen_books()$text
+#' sentiment_scores <- get_nrc_sentiment(vec_text[1:50], lang="english")
+#' df_emotion <- get_dominant_emotion(df_sentiment,1)
+#' format_emotions(gt(summarise_emotions(df_emotion)))
+format_emotions <- function(gt){
   gt %>%
-    color_sentiments() %>%
-    label_sentiments() %>%
-    fmt_percent(decimals = 1)
+    color_emotions() %>%
+    label_emotions() %>%
+    fmt_percent(column = c("undiff","joy","fear","sadness","anger","disgust",
+                           "surprise","trust","anticipation"),decimals = 1)
 }
 
+#' Summarise polarity of a data.frame
+#'
+#' @param df data.frame to summarise
+#'
+#' @returns data.frame
+#' @export
+#'
+#' @examples
+#' vec_text <- janeaustenr::austen_books()$text
+#' sentiment_scores <- get_nrc_sentiment(vec_text[1:50], lang="english")
+#' df_polarity <- get_dominant_polarity(df_polarity,1)
+#' summarise_polarity(df_polarity)
 summarise_polarity <- function(df){
-  df %>%
-    count(polarity) %>%
+
+  vec_polarity <- c("negative","neutral","positive")
+
+  tibble(polarity = vec_polarity) %>%
+    left_join(df %>% count(polarity)) %>%
     mutate(n = n/sum(n)) %>% ungroup() %>%
     pivot_wider(names_from = polarity,values_from = n)
 }
 
+#' Color gt with polarity
+#'
+#' @param gt gt to color
+#'
+#' @returns gt
 color_polarity <- function(gt){
   gt %>%
     data_color(columns = c(positive),method = "numeric",
@@ -65,6 +177,11 @@ color_polarity <- function(gt){
                palette = c("white", "#C62828"),na_color = "white")
 }
 
+#' Label gt with polarity
+#'
+#' @param gt gt to label
+#'
+#' @returns gt
 label_polarity <- function(gt){
   gt %>%
     cols_label(
@@ -74,9 +191,21 @@ label_polarity <- function(gt){
     )
 }
 
+#' Format gt with polarity
+#'
+#' @param gt gt to format : label, color, percent
+#'
+#' @returns gt
+#' @export
+#'
+#' @examples
+#' vec_text <- janeaustenr::austen_books()$text
+#' sentiment_scores <- get_nrc_sentiment(vec_text[1:50], lang="english")
+#' df_polarity <- get_dominant_polarity(df_sentiment,1)
+#' format_polarity(gt(summarise_polarity(df_polarity)))
 format_polarity <- function(gt){
   gt %>%
     color_polarity() %>%
     label_polarity() %>%
-    fmt_percent(decimals = 1)
+    fmt_percent(column = c("positive","neutral","negative"),decimals = 1)
 }
