@@ -10,7 +10,7 @@ paths <- list(
   shiny    = "~/GitHub/lexico/docs/scrap info 2025/dashboard"
 )
 
-df_segment      <- readRDS(file.path(paths$data,"df_segment_classe.rds"))
+df_segment      <- readRDS(file.path(paths$data,"df_segment_sentiment.rds"))
 palettes      <- readRDS(file.path(paths$data,"palettes.rds"))
 
 df_info_text <- df_segment %>%
@@ -300,3 +300,57 @@ df_segment %>%
   ggplot()+
   aes(x=date,y=fl,group=1)+
   geom_line()
+
+
+
+
+df_segment %>%
+  mutate(fl_climat = str_detect(text,"environnement")) %>%
+  group_by(channel,classe_local) %>%
+  summarise(pc_climat = mean(fl_climat)) %>% ungroup() %>%
+  pivot_wider(names_from = classe_local,values_from = pc_climat) %>%
+  gt(rowname_col = "channel",
+     caption = md("**Présence du mot 'environnement' dans les segments**")) %>%
+  fmt_percent(decimals = 1) %>%
+  data_color(method = "numeric",
+             palette = c("white", "green3"),
+             na_color = "white",
+             direction = "row")
+
+df_climat <- df_segment %>%
+  filter(str_detect(text,"climat")) %>%
+  dplyr::mutate(text = remove_apostrophe(text)) %>%
+  mutate(id = paste0(video_id,id_segment))
+
+
+dfm_text  <- df_climat %>%
+  corpus(docid_field="id",text_field="text") %>%
+  corpus_to_tokens() %>%
+  dfm()
+
+dfm_text %>% textplot_wordcloud()
+
+dfm_grp <- dfm_text %>%
+  dfm_group(channel)
+
+dfm_text %>%
+  dfm_group(channel) %>%
+  textplot_wordcloud(comparison = T,labelsize = 2)
+
+dfm_text %>%
+  dfm_group(classe) %>%
+  textplot_wordcloud(comparison = T,labelsize = 2)
+
+
+
+df_segment %>%
+  group_by(channel) %>%
+  summarise_polarity() %>%
+  gt(rowname_col = "channel") %>%
+  cols_label(channel = "Chaîne") %>%
+  format_polarity() %>%
+  gt::tab_header("Statistiques des polarités dans les segments de vidéos") %>%
+  gt::tab_source_note(glue::glue("Source : {nrow(df_segment)} segments issus de {length(unique(df_segment$video_id))} vidéos extraites de Youtube")) %>%
+  gt::tab_source_note(glue::glue("Classification des polarités avec le package syuzhet"))
+
+

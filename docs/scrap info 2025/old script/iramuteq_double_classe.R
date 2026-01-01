@@ -188,6 +188,7 @@ stopifnot(df_segment %>% filter(is.na(classe_local)) %>% nrow() == 0)
 # Il y a aussi des autres global qui sont classé en classe_local.
 # Je fais le choix de les basculer dans les classes globales (thématiques)
 
+
 df_segment %>% count(classe,classe_local) %>% arrange(n) %>% print(n=100)
 
 df_segment <- df_segment %>%
@@ -237,7 +238,7 @@ df_segment <- df_segment %>%
 
 palettes <- list(global = palettes_global,local = palettes_local)
 
-saveRDS(df_segment, file.path(paths$data, "df_segment_classe.rds"))
-saveRDS(palettes,   file.path(paths$data, "palettes.rds"))
+saveRDS(df_segment_classe, file.path(paths$data, "df_segment_classe.rds"))
+saveRDS(palettes,          file.path(paths$data, "palettes.rds"))
 
 cli::cli_alert_success("Fin du 03_post_iramuteq.R")

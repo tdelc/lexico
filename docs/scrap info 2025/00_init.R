@@ -1,5 +1,6 @@
 library(tidyverse)
 library(devtools)
+library(syuzhet)
 library(quanteda)
 library(quanteda.textplots)
 library(quanteda.textstats)

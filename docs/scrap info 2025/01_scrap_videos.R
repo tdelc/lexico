@@ -97,7 +97,7 @@ df_playlist_info <- df_playlist %>%
                           row$suffix,row$playlist_id,params$max_videos)
 })
 
-unique(df_playlist_info$suffix) %>% purrr::map(~vtt_files_to_df(paths$raw,.x))
+
 
 
 # vtt_path    <- "~/GitHub/lexico/inst/extdata/subs_bfm/"

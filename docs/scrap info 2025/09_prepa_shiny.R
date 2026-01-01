@@ -18,12 +18,20 @@ df_segment <- df_segment %>%
   select(-classe_text,-n_segments) %>%
   left_join(df_video)
 
+tokens_text <- df_segment %>%
+  group_by(video_id,channel,date_video,title) %>%
+  summarise(text = paste(text, collapse = " ")) %>% ungroup() %>%
+  dplyr::mutate(text = remove_apostrophe(text)) %>%
+  corpus(docid_field="video_id",text_field="text") %>%
+  corpus_to_tokens()
+
 # -------------------------------------------------------------------------
 # 2) Sauvegarder df commune pour app shiny
 # -------------------------------------------------------------------------
 
-saveRDS(df_segment, file.path(paths$shiny, "df_segment.rds"))
-saveRDS(palettes  , file.path(paths$shiny, "palettes.rds"))
+saveRDS(df_segment , file.path(paths$shiny, "df_segment.rds"))
+saveRDS(palettes   , file.path(paths$shiny, "palettes.rds"))
+saveRDS(tokens_text, file.path(paths$shiny, "tokens_text.rds"))
 
 cli::cli_alert_success("Fin du 05_prepa_shiny.R")
 

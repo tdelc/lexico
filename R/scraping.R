@@ -205,10 +205,11 @@ run_complete_extraction <- function(api_key,
 
   list_files <- list.files(dir_path, pattern = "\\.vtt$", full.names = TRUE)
 
-  df_text <- purrr::map_dfr(list_files, read_vtt_as_text) %>%
-    dplyr::mutate(chaine = suffix)
-
+  # df_text <- purrr::map_dfr(list_files, read_vtt_as_text) %>%
+  #   dplyr::mutate(chaine = suffix)
+  df_text <- vtt_files_to_df(path,suffix)
   utils::write.csv(df_text,file=path_text,row.names = F)
+
   return(NULL)
 }
 
@@ -224,8 +225,7 @@ vtt_files_to_df <- function(path,
   df_text <- list_files %>% purrr::map_dfr(read_vtt_as_df_fast,.progress = TRUE)
   df_text$suffix <- suffix
   cli::cli_process_done()
-
-  utils::write.csv(df_text,file=path_text,row.names = F)
+  return(df_text)
 }
 
 #' Get duration of a youtube video
