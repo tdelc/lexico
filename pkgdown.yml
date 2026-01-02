@@ -1,0 +1,12 @@
+pandoc: 3.1.11
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  00_scraping: 00_scraping.html
+  01_prepa-data: 01_prepa-data.html
+  02_iramuteq: 02_iramuteq.html
+  03_quanteda: 03_quanteda.html
+last_built: 2026-01-02T17:18Z
+urls:
+  reference: https://tdelc.github.io/lexico/reference
+  article: https://tdelc.github.io/lexico/articles
