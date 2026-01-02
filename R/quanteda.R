@@ -15,6 +15,8 @@ corpus_to_tokens <- function(corpus,
                              stopwords = get_specific_stopwords(),
                              multiwords = get_specific_multiwords()){
 
+  unnamed_recode <- stringr::str_remove_all(unname(recode_words),"\\\\1|\\\\3")
+
   quanteda::tokens(corpus) %>%
     quanteda::tokens(
       remove_punct = TRUE,
@@ -22,7 +24,8 @@ corpus_to_tokens <- function(corpus,
       remove_numbers = TRUE,
       remove_url = TRUE)  %>%
     quanteda::tokens_tolower() %>%
-    quanteda::tokens_replace(names(recode_words), unname(recode_words)) %>%
+    quanteda::tokens_replace(names(recode_words),unnamed_recode,
+                             valuetype = "regex") %>%
     quanteda::tokens_remove(stopwords) %>%
     quanteda::tokens_compound(quanteda::phrase(multiwords)) %>%
     quanteda::tokens_keep(pattern = "^.{3,}$",valuetype = "regex")

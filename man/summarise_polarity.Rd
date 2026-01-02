@@ -17,7 +17,7 @@ Summarise polarity of a data.frame
 }
 \examples{
 vec_text <- janeaustenr::austen_books()$text
-sentiment_scores <- get_nrc_sentiment(vec_text[1:50], lang="english")
+sentiment_scores <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_polarity <- get_dominant_polarity(df_polarity,1)
 summarise_polarity(df_polarity)
 }

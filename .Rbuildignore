@@ -3,5 +3,11 @@
 ^README\.Rmd$
 ^LICENSE\.md$
 docs
+inst/projects
 .Renviron
 ^data-raw$
+^doc$
+^Meta$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

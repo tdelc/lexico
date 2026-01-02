@@ -1,0 +1,110 @@
+---
+title: "Analyser les textes avec Quanteda"
+author: "lexico"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyser les textes avec Quanteda}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = T
+)
+```
+
+Cette vignette montre comment passer d'un tableau de textes nettoyés à des
+objets `quanteda` prêts pour l'analyse lexicométrique.
+
+Avant de faire l'analyse quanteda, nous appliquons les corrections
+sur le `df_text` (voir la vignette *Préparer les données textuelles*
+pour le détail).
+
+```{r chargement, message=FALSE}
+library(lexico)
+library(dplyr)
+library(stringr)
+library(quanteda)
+
+df_text <- read.csv("~/Github/lexico/inst/extdata/df_text_bfm.csv")
+
+stopwords <- get_specific_stopwords()
+stopwords_regex <- paste0("\\b(?:", paste(stopwords, collapse = "|"), ")\\b")
+
+df_text <- df_text %>%
+  mutate(text = tolower(text),
+         text = str_remove_all(text,stopwords_regex),
+         text = str_replace_all(text, get_recode_words()),
+         text = str_remove_all(text,"\\[[a-z]+?\\]"),
+         text = str_squish(text))
+
+df_segment <- df_text %>%
+  mutate(id_segment = 1+floor(start/(2*60))) %>%
+  group_by(suffix,video_id,id_segment) %>%
+  summarise(start = min(start),end = max(end),
+            text = paste(text, collapse = " "),
+            .groups = "drop")
+```
+
+## Du tableau au corpus
+
+Pour créer un corpus quanteda, il faut un identifiant de document, une variable
+de texte et d'éventuelles variables de métadonnées. Attention, l'identifiant
+doit être unique, il nous faut donc créer une variable couplant video_id et
+id_segment.
+
+```{r corpus}
+df_segment <- df_segment %>% mutate(doc_id = paste(video_id,id_segment))
+
+corpus_segment <- corpus(df_segment, 
+                         docid_field = "doc_id",
+                         text_field  = "text")
+```
+
+## Tokenisation et nettoyage
+
+Le corpus ainsi obtenu peut être retravaillé, nettoyé comme nous l'avons fait
+durant l'étape de préparation des données. D'autres options spécifiques au 
+package quanteda peuvent être utilisées.
+
+```{r tokens}
+tokens_segment <- corpus_segment %>% 
+  tokens(
+    remove_punct = TRUE,
+    remove_symbols = TRUE,
+    remove_numbers = TRUE,
+    remove_url = TRUE)  %>%
+  tokens_tolower() %>%
+  tokens_replace(names(get_recode_words()), unname(get_recode_words())) %>%
+  tokens_remove(get_specific_stopwords()) %>%
+  tokens_keep(pattern = "^.{3,}$",valuetype = "regex")
+
+head(tokens_segment)
+```
+
+On peut ensuite construire une matrice document-terme :
+
+```{r dfm}
+dfm_segment <- dfm(tokens_segment)
+dfm_segment
+```
+
+## Utiliser le dictionnaire fourni
+
+Le package inclut un dictionnaire thématique prêt à l'emploi via
+`get_dictionary()`. Il s'utilise directement avec `tokens_lookup()` ou
+`dfm_lookup()`.
+
+```{r dict}
+dico <- get_dictionary()
+dfm_thematic <- dfm_lookup(dfm_segment, dictionary = dico)
+dfm_thematic
+```
+
+`dfm_thematic` permet de suivre l'évolution de thèmes (immigration,
+sécurité, etc.) sur les vidéos analysées. Il peut être agrégé par chaîne
+ou par période avec `dfm_group()` ou `textstat_keyness()` pour comparer
+plusieurs sous-corpus.

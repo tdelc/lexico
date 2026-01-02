@@ -17,7 +17,7 @@ Summarise emotions of a data.frame
 }
 \examples{
 vec_text <- janeaustenr::austen_books()$text
-df_sentiment <- get_nrc_sentiment(vec_text[1:50], lang="english")
+df_sentiment <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_emotion <- get_dominant_emotion(df_sentiment,1)
 summarise_emotions(df_emotion)
 }

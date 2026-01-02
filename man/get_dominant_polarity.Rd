@@ -19,7 +19,7 @@ Get most frequent polarity of a sentiment score df
 }
 \examples{
 vec_text <- janeaustenr::austen_books()$text
-df_sentiment <- get_nrc_sentiment(vec_text[1:50], lang="english")
+df_sentiment <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_polarity <- get_dominant_polarity(df_sentiment,2)
-count(df_polarity,polarity)
+dplyr::count(df_polarity,polarity)
 }

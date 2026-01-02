@@ -17,7 +17,7 @@ Format gt with emotions
 }
 \examples{
 vec_text <- janeaustenr::austen_books()$text
-sentiment_scores <- get_nrc_sentiment(vec_text[1:50], lang="english")
+sentiment_scores <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_emotion <- get_dominant_emotion(df_sentiment,1)
 format_emotions(gt(summarise_emotions(df_emotion)))
 }

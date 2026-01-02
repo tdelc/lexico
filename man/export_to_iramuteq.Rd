@@ -22,7 +22,7 @@ nothing (create file)
 Export to iramuteq
 }
 \examples{
-df <- janeaustenr::austen_books()[1:10,]
+df <- janeaustenr::austen_books()
 path_txt <- file.path(tempfile(fileext=".txt"))
 export_to_iramuteq(df,"book","text",path_txt)
 }

@@ -4,10 +4,19 @@
 \alias{run_complete_extraction}
 \title{Run a complete extraction for a playlist id}
 \usage{
-run_complete_extraction(api_key, path, suffix, playlist_id, max_videos)
+run_complete_extraction(
+  api_key,
+  yt_dlp_path,
+  path,
+  suffix,
+  playlist_id,
+  max_videos
+)
 }
 \arguments{
 \item{api_key}{youtube api key}
+
+\item{yt_dlp_path}{path to yt_dlp}
 
 \item{path}{path to save subtitles}
 

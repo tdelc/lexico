@@ -4,6 +4,7 @@ inst/*/raw
 inst/*/iramuteq
 inst/*/publication
 inst/*/dashboard
+inst/*/quiz
 .Rhistory
 .RData
 .httr-oauth
@@ -11,3 +12,6 @@ inst/*/dashboard
 .quarto
 .Renviron
 inst/doc
+/doc/
+/Meta/
+docs

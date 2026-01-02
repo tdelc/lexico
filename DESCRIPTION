@@ -25,6 +25,7 @@ Imports:
     quanteda,
     stopwords,
     stringr,
+    syuzhet,
     treemap,
     utils
 Suggests: 
