@@ -6,11 +6,10 @@ library(devtools)
 load_all()
 
 paths <- list(
-  raw      = "~/GitHub/lexico/docs/scrap info 2025/raw",
-  data     = "~/GitHub/lexico/docs/scrap info 2025/data",
-  dic      = "~/GitHub/lexico/docs/scrap info 2025/dictionary",
-  shiny    = "~/GitHub/lexico/docs/scrap info 2025/dashboard",
-  classe_local = "corpus_segment_corpus_3/corpus_segment_alceste_4"
+  raw      = "~/GitHub/lexico/inst/projects/info_2025/raw",
+  data     = "~/GitHub/lexico/inst/projects/info_2025/data",
+  dic      = "~/GitHub/lexico/inst/projects/info_2025/dictionary",
+  shiny    = "~/GitHub/lexico/inst/projects/info_2025/dashboard"
 )
 
 ## Préparation des dictionnaires

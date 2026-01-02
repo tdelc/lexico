@@ -32,7 +32,7 @@ library(lexico)
 library(dplyr)
 library(stringr)
 
-df_text <- read.csv("https://github.com/tdelc/lexico/blob/master/inst/extdata/df_text_bfm.csv")
+df_text <- data(df_text_bfm)
 
 stopwords <- get_specific_stopwords()
 stopwords_regex <- paste0("\\b(?:", paste(stopwords, collapse = "|"), ")\\b")
