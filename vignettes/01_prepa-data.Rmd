@@ -28,7 +28,7 @@ library(lexico)
 library(dplyr)
 library(stringr)
 
-df_text <- read.csv("~/Github/lexico/inst/extdata/df_text_bfm.csv")
+df_text <- read.csv("https://github.com/tdelc/lexico/blob/master/inst/extdata/df_text_bfm.csv")
 ```
 
 ## Nettoyer et normaliser le vocabulaire

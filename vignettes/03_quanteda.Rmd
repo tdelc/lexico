@@ -29,7 +29,7 @@ library(dplyr)
 library(stringr)
 library(quanteda)
 
-df_text <- read.csv("~/Github/lexico/inst/extdata/df_text_bfm.csv")
+df_text <- read.csv("https://github.com/tdelc/lexico/blob/master/inst/extdata/df_text_bfm.csv")
 
 stopwords <- get_specific_stopwords()
 stopwords_regex <- paste0("\\b(?:", paste(stopwords, collapse = "|"), ")\\b")

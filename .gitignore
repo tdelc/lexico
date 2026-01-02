@@ -1,10 +1,10 @@
 .Rproj.user
-inst/*/data
-inst/*/raw
-inst/*/iramuteq
-inst/*/publication
-inst/*/dashboard
-inst/*/quiz
+inst/**/data
+inst/**/raw
+inst/**/iramuteq
+inst/**/publication
+inst/**/dashboard
+inst/**/quiz
 .Rhistory
 .RData
 .httr-oauth
