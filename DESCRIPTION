@@ -1,6 +1,6 @@
 Package: lexico
 Title: Scraping et Lexicométrie sur des vidéos Youtube
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person("Thomas", "Delclite", , "t.delclite@gmail.com", role = c("aut", "cre"))
 Description: Ce package fournit plusieurs fonctions pour extraire les sous-titres
