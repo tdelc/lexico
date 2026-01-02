@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">lexico</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,10 +18,10 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/00_scraping.html">Scraper des playlists YouTube</a></li>
-    <li><a class="dropdown-item" href="../articles/01_prepa-data.html">Préparer les données textuelles</a></li>
-    <li><a class="dropdown-item" href="../articles/02_iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a></li>
-    <li><a class="dropdown-item" href="../articles/03_quanteda.html">Analyser les textes avec Quanteda</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a></li>
+    <li><a class="dropdown-item" href="../articles/prepa-data.html">Préparer les données textuelles</a></li>
+    <li><a class="dropdown-item" href="../articles/quanteda.html">Analyser les textes avec Quanteda</a></li>
+    <li><a class="dropdown-item" href="../articles/scraping.html">Scraper des playlists YouTube</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -70,9 +70,15 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">vec_text</span> <span class="op">&lt;-</span> <span class="fu">janeaustenr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/janeaustenr/man/austen_books.html" class="external-link">austen_books</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">text</span></span></span>
 <span class="r-in"><span><span class="va">df_sentiment</span> <span class="op">&lt;-</span> <span class="fu">syuzhet</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/syuzhet/man/get_nrc_sentiment.html" class="external-link">get_nrc_sentiment</a></span><span class="op">(</span><span class="va">vec_text</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">]</span>, lang<span class="op">=</span><span class="st">"english"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df_emotion</span> <span class="op">&lt;-</span> <span class="fu">get_dominant_emotion</span><span class="op">(</span><span class="va">df_sentiment</span>,<span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in get_dominant_emotion(df_sentiment, 2):</span> object 'sentiment_scores' not found</span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">df_emotion</span>,<span class="va">sentiment</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'df_emotion' not found</span>
+<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">df_emotion</span>,<span class="va">emotion</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   emotion          n</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> anger            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> anticipation     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> surprise         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> trust            3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> undiff          42</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

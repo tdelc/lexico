@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">lexico</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,10 +18,10 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/00_scraping.html">Scraper des playlists YouTube</a></li>
-    <li><a class="dropdown-item" href="../articles/01_prepa-data.html">Préparer les données textuelles</a></li>
-    <li><a class="dropdown-item" href="../articles/02_iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a></li>
-    <li><a class="dropdown-item" href="../articles/03_quanteda.html">Analyser les textes avec Quanteda</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a></li>
+    <li><a class="dropdown-item" href="../articles/prepa-data.html">Préparer les données textuelles</a></li>
+    <li><a class="dropdown-item" href="../articles/quanteda.html">Analyser les textes avec Quanteda</a></li>
+    <li><a class="dropdown-item" href="../articles/scraping.html">Scraper des playlists YouTube</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -63,10 +63,22 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">path_vtt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">path_vtt</span> <span class="op">&lt;-</span> <span class="fu"><a href="lexico_example.html">lexico_example</a></span><span class="op">(</span><span class="st">"6IOUEJN6GRI.fr.vtt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">read_vtt_as_df</span><span class="op">(</span><span class="va">path_vtt</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot open file 'inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt': No such file or directory</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in file(con, "r"):</span> cannot open the connection</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 584 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    n_grp start   end text                                               video_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>     0  3.40  6.31 Et c'est l'heure du face- à face, il est arrivé à… 6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>     1  6.31  7.6  d'Armanin. [rires]                                 6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>     2  7.6  11.8  Vous êtes le garde des SAAU, ministre de la justi… 6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>     3 11.8  13.2  à vous poser parce qu'en plus votre                6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>     4 13.2  16.3  parole est de plus en plus rare. Désormais vous v… 6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>     5 16.3  17.9  les questions politiques mais là il y a            6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>     6 17.9  23.1  vraiment du boulot et notamment sur le front de l… 6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>     7 23.1  26.9  notamment détailler votre projet de loi.           6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>     8 26.9  30.6  Je cite le titre de votre projet de loi. Un proje… 6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>     9 30.6  34.9  sanction utile, rapide et effective. en            6IOUEJN…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 574 more rows</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

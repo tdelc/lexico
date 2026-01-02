@@ -58,9 +58,6 @@ plot
 ## Examples
 
 ``` r
-df_segment <- read.csv("inst/extdata/df_segment.csv")
-#> Warning: cannot open file 'inst/extdata/df_segment.csv': No such file or directory
-#> Error in file(file, "rt"): cannot open the connection
+df_segment <- read.csv(lexico_example("df_segment.csv"))
 treemap_double_classe(df_segment,"id_classe","classe","classe_local",0)
-#> Error in mutate(., theme_ = paste0(theme_, " (", round(100 * sum(n)/n_all),     "%)")): could not find function "mutate"
 ```

@@ -28,7 +28,11 @@ data.frame
 vec_text <- janeaustenr::austen_books()$text
 df_sentiment <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_polarity <- get_dominant_polarity(df_sentiment,2)
-#> Error: 'rownames_to_column' is not an exported object from 'namespace:dplyr'
 dplyr::count(df_polarity,polarity)
-#> Error: object 'df_polarity' not found
+#> # A tibble: 3 × 2
+#>   polarity     n
+#>   <chr>    <int>
+#> 1 negative     2
+#> 2 neutral     36
+#> 3 positive    12
 ```

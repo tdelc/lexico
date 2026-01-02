@@ -1,15 +1,16 @@
 # lexico
 
-Package R pour faciliter l’extraction et l’analyse lexicométrique de
-contenus vidéo YouTube. Il combine des utilitaires de scraping (API
-YouTube + sous-titres via `yt-dlp`) et des fonctions de
+Lexico est un package R facilitant l’extraction et l’analyse
+lexicométrique de contenus vidéo YouTube. Il combine des utilitaires de
+scraping (API YouTube + sous-titres via `yt-dlp`) et des fonctions de
 préparation/normalisation pour travailler ensuite avec *quanteda* ou
 exporter/importer des corpus au format *IRaMuTeQ*.
 
 ## Installation
 
 L’installation se fait directement via mon github. Aucune diffusion sur
-CRAN n’est prévue à ce stade.
+CRAN n’est prévue à ce stade. Les fonctionnalités et noms des fonctions
+pourront subir des modifications majeures au fil des utilisations.
 
 ``` r
 remotes::install_github("tdelc/lexico")
@@ -23,6 +24,7 @@ remotes::install_github("tdelc/lexico")
   pour télécharger les sous-titres.
 - R (avec les dépendances déclarées dans `DESCRIPTION`, notamment
   `quanteda`, `dplyr`, `httr`, `purrr`, `stringr`, `stopwords`).
+- IRaMuTeQ, pour créer les classes de segments de texte.
 
 Aucune donnée n’est distribuée avec le package : seules les fonctions
 sont fournies, le téléchargement restant à la charge de
@@ -32,41 +34,17 @@ l’utilisateur·rice.
 
 ### Scraping YouTube
 
-- `get_playlist_items(api_key, playlist_id, max_results = 100)`:
-  récupère les métadonnées d’une playlist (titre, description, date de
+- `get_videos_info(api_key, playlist_id, max_results = 100)`: récupère
+  les métadonnées d’une playlist (titre, description, date de
   publication, position, etc.).
-- `get_videos_details(api_key, video_ids)`: complète les informations
-  des vidéos (statistiques, durée, langue, tags…).
-- `download_subtitles(video_id, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)`:
-  télécharge les sous-titres automatiques français d’une vidéo.
-- `read_vtt_as_text(vtt_file)`: transforme un fichier `.vtt` en texte
-  brut agrégé.
+- `get_videos_stats(api_key, video_ids)`: complète les informations des
+  vidéos (statistiques, durée, langue, tags…).
+- ``` get_videos_text``(``video_ids``, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE) ```:
+  télécharge les sous-titres automatiques français d’une vidéo et les
+  prépare en base de données minutée.
 - `run_complete_extraction(api_key, path, suffix, playlist_id, max_videos)`:
   pipeline clé en main pour une playlist : récupération des infos/
-  stats, téléchargement des sous-titres, consolidation en CSV.
-- `parse_yt_duration(duration)`: convertit la durée YouTube (ex.
-  `"PT25M31S"`) en secondes.
-
-### Préparation et nettoyage
-
-- `clean_df_text(vec_text, recode_words, stopwords, multiwords)`:
-  normalise les textes (suppression de stopwords spécifiques, recodage,
-  composition de multi-mots).
-- Lexique et règles prêtes à l’emploi :
-  [`get_specific_stopwords()`](https://tdelc.github.io/lexico/reference/get_specific_stopwords.md),
-  [`get_specific_multiwords()`](https://tdelc.github.io/lexico/reference/get_specific_multiwords.md),
-  [`get_recode_words()`](https://tdelc.github.io/lexico/reference/get_recode_words.md),
-  [`remove_apostrophe()`](https://tdelc.github.io/lexico/reference/remove_apostrophe.md).
-
-### Quanteda
-
-- `corpus_to_tokens(corpus, recode_words, stopwords, multiwords)`:
-  convertit un corpus `quanteda` en tokens propres (minuscules, retrait
-  ponctuation, URLs, nombres, stopwords, recodage, multi-mots).
-- [`get_dictionary()`](https://tdelc.github.io/lexico/reference/get_dictionary.md):
-  dictionnaire thématique (immigration, sécurité, identité, etc.) prêt
-  pour
-  [`quanteda::dfm_lookup`](https://quanteda.io/reference/dfm_lookup.html).
+  stats/text, sauvegarde en CSV.
 
 ### IRaMuTeQ
 
@@ -76,38 +54,28 @@ l’utilisateur·rice.
 - `import_from_iramuteq(file)`: lit un export IRaMuTeQ et reconstruit un
   data.frame (métadonnées + texte).
 
-## Exemple de flux complet
+## Usage
 
-``` r
-api_key <- Sys.getenv("YOUTUBE_API_KEY")
-playlist_id <- "PLxxxxxxxxxxxxxxxx"
-base_dir <- "data"
+Plusieurs vignettes sont rédigées pour aider à l’utilisation
 
-# 1. Scraper les infos + sous-titres de la playlist
-run_complete_extraction(
-  api_key = api_key,
-  path = base_dir,
-  suffix = "ma_chaine",
-  playlist_id = playlist_id,
-  max_videos = 200
-)
+- [Scraper des playlists
+  YouTube](https://tdelc.github.io/lexico/articles/scraping.html) pour
+  apprendre à extraire les vidéos, leurs sous-titres et mettre en format
+  base de données les informations.
 
-# 2. Charger les textes et nettoyer
-subs_dir <- file.path(base_dir, "subs_ma_chaine")
-vtt_files <- list.files(subs_dir, pattern = "\\.vtt$", full.names = TRUE)
-text_df <- purrr::map_dfr(vtt_files, read_vtt_as_text)
+- [Préparer les données
+  textuelles](https://tdelc.github.io/lexico/articles/prepa-data.html)
+  où j’explique comment j’ai nettoyé le corpus.
 
-# 3. Tokeniser puis créer une DFM avec dictionnaire thématique
-corp <- quanteda::corpus(text_df, text_field = "text_clean")
-toks <- corpus_to_tokens(corp)
-dfm <- quanteda::dfm(toks)
-quanteda::dfm_lookup(dfm, dictionary = get_dictionary())
+- [Préparer et exploiter des corpus avec
+  IRaMuTeQ](https://tdelc.github.io/lexico/articles/iramuteq.html) pour
+  comprendre comment exploiter ce corpus avec IRaMuTeQ.
 
-# 4. Exporter vers IRaMuTeQ si besoin
-export_to_iramuteq(text_df, meta_cols = "video_id", text_col = "text_clean", output_file = "iramuteq.txt")
-```
+- [Analyser les textes avec
+  Quanteda](https://tdelc.github.io/lexico/articles/quanteda.html) pour
+  l’analyse du corpus avec le package R Quanteda
 
-## Bonnes pratiques
+## Remarques
 
 - Respectez les quotas de l’API YouTube et stockez votre clé dans une
   variable d’environnement.
@@ -118,7 +86,7 @@ export_to_iramuteq(text_df, meta_cols = "video_id", text_col = "text_clean", out
 
 ## Licence
 
-Les codes sont publics sous licence gpl3; aucune donnée n’est distribuée
+Les codes sont publics sous licence gpl3. Aucune donnée n’est distribuée
 avec le package.
 
 # Package index
@@ -149,16 +117,18 @@ avec le package.
   : Get most frequent emotion of a sentiment score df
 - [`get_dominant_polarity()`](https://tdelc.github.io/lexico/reference/get_dominant_polarity.md)
   : Get most frequent polarity of a sentiment score df
-- [`get_playlist_items()`](https://tdelc.github.io/lexico/reference/get_playlist_items.md)
-  : Get youtube infos from a playlist
 - [`get_recode_words()`](https://tdelc.github.io/lexico/reference/get_recode_words.md)
   : get recoding words
 - [`get_specific_multiwords()`](https://tdelc.github.io/lexico/reference/get_specific_multiwords.md)
   : Get specific multiwords for the study
 - [`get_specific_stopwords()`](https://tdelc.github.io/lexico/reference/get_specific_stopwords.md)
   : Specific stopwords for this study
-- [`get_videos_details()`](https://tdelc.github.io/lexico/reference/get_videos_details.md)
-  : Get details from youtube videos
+- [`get_videos_info()`](https://tdelc.github.io/lexico/reference/get_videos_info.md)
+  : Get YouTube informations of videos from a playlist
+- [`get_videos_stat()`](https://tdelc.github.io/lexico/reference/get_videos_stat.md)
+  : Get YouTube statistics informations of videos
+- [`get_videos_text()`](https://tdelc.github.io/lexico/reference/get_videos_text.md)
+  : Get YouTube subtitles of videos
 - [`group_minuted_text()`](https://tdelc.github.io/lexico/reference/group_minuted_text.md)
   : Regroup text by minutes
 - [`hms_to_sec()`](https://tdelc.github.io/lexico/reference/hms_to_sec.md)
@@ -196,11 +166,11 @@ avec le package.
 
 ### All vignettes
 
-- [Scraper des playlists
-  YouTube](https://tdelc.github.io/lexico/articles/00_scraping.md):
-- [Préparer les données
-  textuelles](https://tdelc.github.io/lexico/articles/01_prepa-data.md):
 - [Préparer et exploiter des corpus avec
-  IRaMuTeQ](https://tdelc.github.io/lexico/articles/02_iramuteq.md):
+  IRaMuTeQ](https://tdelc.github.io/lexico/articles/iramuteq.md):
+- [Préparer les données
+  textuelles](https://tdelc.github.io/lexico/articles/prepa-data.md):
 - [Analyser les textes avec
-  Quanteda](https://tdelc.github.io/lexico/articles/03_quanteda.md):
+  Quanteda](https://tdelc.github.io/lexico/articles/quanteda.md):
+- [Scraper des playlists
+  YouTube](https://tdelc.github.io/lexico/articles/scraping.md):

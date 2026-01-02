@@ -22,9 +22,51 @@ gt
 
 ``` r
 vec_text <- janeaustenr::austen_books()$text
-sentiment_scores <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
+df_sentiment <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_emotion <- get_dominant_emotion(df_sentiment,1)
-#> Error in get_dominant_emotion(df_sentiment, 1): object 'sentiment_scores' not found
-format_emotions(gt(summarise_emotions(df_emotion)))
-#> Error in loadNamespace(x): there is no package called ‘gt’
+format_emotions(gt::gt(summarise_emotions(df_emotion)))
+#> Joining with `by = join_by(emotion)`
+
+
+  
+
+n_all
 ```
+
+Indéterminé
+
+Joie
+
+Peur
+
+Tristesse
+
+Colère
+
+Dégoût
+
+Surprise
+
+Confiance
+
+Anticipation
+
+50
+
+46.0%
+
+2.0%
+
+0.0%
+
+2.0%
+
+8.0%
+
+2.0%
+
+2.0%
+
+16.0%
+
+22.0%

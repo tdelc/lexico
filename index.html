@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">lexico</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,10 +35,10 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/00_scraping.html">Scraper des playlists YouTube</a></li>
-    <li><a class="dropdown-item" href="articles/01_prepa-data.html">Préparer les données textuelles</a></li>
-    <li><a class="dropdown-item" href="articles/02_iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a></li>
-    <li><a class="dropdown-item" href="articles/03_quanteda.html">Analyser les textes avec Quanteda</a></li>
+<li><a class="dropdown-item" href="articles/iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a></li>
+    <li><a class="dropdown-item" href="articles/prepa-data.html">Préparer les données textuelles</a></li>
+    <li><a class="dropdown-item" href="articles/quanteda.html">Analyser les textes avec Quanteda</a></li>
+    <li><a class="dropdown-item" href="articles/scraping.html">Scraper des playlists YouTube</a></li>
   </ul>
 </li>
       </ul>
@@ -57,11 +57,11 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="lexico">lexico<a class="anchor" aria-label="anchor" href="#lexico"></a>
 </h1></div>
-<p>Package R pour faciliter l’extraction et l’analyse lexicométrique de contenus vidéo YouTube. Il combine des utilitaires de scraping (API YouTube + sous-titres via <code>yt-dlp</code>) et des fonctions de préparation/normalisation pour travailler ensuite avec <em>quanteda</em> ou exporter/importer des corpus au format <em>IRaMuTeQ</em>.</p>
+<p>Lexico est un package R facilitant l’extraction et l’analyse lexicométrique de contenus vidéo YouTube. Il combine des utilitaires de scraping (API YouTube + sous-titres via <code>yt-dlp</code>) et des fonctions de préparation/normalisation pour travailler ensuite avec <em>quanteda</em> ou exporter/importer des corpus au format <em>IRaMuTeQ</em>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>L’installation se fait directement via mon github. Aucune diffusion sur CRAN n’est prévue à ce stade.</p>
+<p>L’installation se fait directement via mon github. Aucune diffusion sur CRAN n’est prévue à ce stade. Les fonctionnalités et noms des fonctions pourront subir des modifications majeures au fil des utilisations.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"tdelc/lexico"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -72,6 +72,7 @@
 <li>Une clé API YouTube Data (v3) pour interroger les playlists et vidéos.</li>
 <li>L’outil en ligne de commande <a href="https://github.com/yt-dlp/yt-dlp" class="external-link"><code>yt-dlp</code></a> disponible dans le <code>PATH</code> pour télécharger les sous-titres.</li>
 <li>R (avec les dépendances déclarées dans <code>DESCRIPTION</code>, notamment <code>quanteda</code>, <code>dplyr</code>, <code>httr</code>, <code>purrr</code>, <code>stringr</code>, <code>stopwords</code>).</li>
+<li>IRaMuTeQ, pour créer les classes de segments de texte.</li>
 </ul>
 <p>Aucune donnée n’est distribuée avec le package : seules les fonctions sont fournies, le téléchargement restant à la charge de l’utilisateur·rice.</p>
 </div>
@@ -83,36 +84,13 @@
 </h3>
 <ul>
 <li>
-<code>get_playlist_items(api_key, playlist_id, max_results = 100)</code>: récupère les métadonnées d’une playlist (titre, description, date de publication, position, etc.).</li>
+<code>get_videos_info(api_key, playlist_id, max_results = 100)</code>: récupère les métadonnées d’une playlist (titre, description, date de publication, position, etc.).</li>
 <li>
-<code>get_videos_details(api_key, video_ids)</code>: complète les informations des vidéos (statistiques, durée, langue, tags…).</li>
+<code>get_videos_stats(api_key, video_ids)</code>: complète les informations des vidéos (statistiques, durée, langue, tags…).</li>
 <li>
-<code>download_subtitles(video_id, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)</code>: télécharge les sous-titres automatiques français d’une vidéo.</li>
+<code>get_videos_text``(``video_ids``, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)</code>: télécharge les sous-titres automatiques français d’une vidéo et les prépare en base de données minutée.</li>
 <li>
-<code>read_vtt_as_text(vtt_file)</code>: transforme un fichier <code>.vtt</code> en texte brut agrégé.</li>
-<li>
-<code>run_complete_extraction(api_key, path, suffix, playlist_id, max_videos)</code>: pipeline clé en main pour une playlist : récupération des infos/ stats, téléchargement des sous-titres, consolidation en CSV.</li>
-<li>
-<code>parse_yt_duration(duration)</code>: convertit la durée YouTube (ex. <code>"PT25M31S"</code>) en secondes.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="préparation-et-nettoyage">Préparation et nettoyage<a class="anchor" aria-label="anchor" href="#pr%C3%A9paration-et-nettoyage"></a>
-</h3>
-<ul>
-<li>
-<code>clean_df_text(vec_text, recode_words, stopwords, multiwords)</code>: normalise les textes (suppression de stopwords spécifiques, recodage, composition de multi-mots).</li>
-<li>Lexique et règles prêtes à l’emploi : <code><a href="reference/get_specific_stopwords.html">get_specific_stopwords()</a></code>, <code><a href="reference/get_specific_multiwords.html">get_specific_multiwords()</a></code>, <code><a href="reference/get_recode_words.html">get_recode_words()</a></code>, <code><a href="reference/remove_apostrophe.html">remove_apostrophe()</a></code>.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="quanteda">Quanteda<a class="anchor" aria-label="anchor" href="#quanteda"></a>
-</h3>
-<ul>
-<li>
-<code>corpus_to_tokens(corpus, recode_words, stopwords, multiwords)</code>: convertit un corpus <code>quanteda</code> en tokens propres (minuscules, retrait ponctuation, URLs, nombres, stopwords, recodage, multi-mots).</li>
-<li>
-<code><a href="reference/get_dictionary.html">get_dictionary()</a></code>: dictionnaire thématique (immigration, sécurité, identité, etc.) prêt pour <code><a href="https://quanteda.io/reference/dfm_lookup.html" class="external-link">quanteda::dfm_lookup</a></code>.</li>
+<code>run_complete_extraction(api_key, path, suffix, playlist_id, max_videos)</code>: pipeline clé en main pour une playlist : récupération des infos/ stats/text, sauvegarde en CSV.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -127,38 +105,18 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="exemple-de-flux-complet">Exemple de flux complet<a class="anchor" aria-label="anchor" href="#exemple-de-flux-complet"></a>
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">api_key</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"YOUTUBE_API_KEY"</span><span class="op">)</span></span>
-<span><span class="va">playlist_id</span> <span class="op">&lt;-</span> <span class="st">"PLxxxxxxxxxxxxxxxx"</span></span>
-<span><span class="va">base_dir</span> <span class="op">&lt;-</span> <span class="st">"data"</span></span>
-<span></span>
-<span><span class="co"># 1. Scraper les infos + sous-titres de la playlist</span></span>
-<span><span class="fu"><a href="reference/run_complete_extraction.html">run_complete_extraction</a></span><span class="op">(</span></span>
-<span>  api_key <span class="op">=</span> <span class="va">api_key</span>,</span>
-<span>  path <span class="op">=</span> <span class="va">base_dir</span>,</span>
-<span>  suffix <span class="op">=</span> <span class="st">"ma_chaine"</span>,</span>
-<span>  playlist_id <span class="op">=</span> <span class="va">playlist_id</span>,</span>
-<span>  max_videos <span class="op">=</span> <span class="fl">200</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 2. Charger les textes et nettoyer</span></span>
-<span><span class="va">subs_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">base_dir</span>, <span class="st">"subs_ma_chaine"</span><span class="op">)</span></span>
-<span><span class="va">vtt_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">subs_dir</span>, pattern <span class="op">=</span> <span class="st">"\\.vtt$"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">text_df</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_dfr</a></span><span class="op">(</span><span class="va">vtt_files</span>, <span class="va">read_vtt_as_text</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 3. Tokeniser puis créer une DFM avec dictionnaire thématique</span></span>
-<span><span class="va">corp</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/corpus.html" class="external-link">corpus</a></span><span class="op">(</span><span class="va">text_df</span>, text_field <span class="op">=</span> <span class="st">"text_clean"</span><span class="op">)</span></span>
-<span><span class="va">toks</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/corpus_to_tokens.html">corpus_to_tokens</a></span><span class="op">(</span><span class="va">corp</span><span class="op">)</span></span>
-<span><span class="va">dfm</span> <span class="op">&lt;-</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm.html" class="external-link">dfm</a></span><span class="op">(</span><span class="va">toks</span><span class="op">)</span></span>
-<span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm_lookup.html" class="external-link">dfm_lookup</a></span><span class="op">(</span><span class="va">dfm</span>, dictionary <span class="op">=</span> <span class="fu"><a href="reference/get_dictionary.html">get_dictionary</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 4. Exporter vers IRaMuTeQ si besoin</span></span>
-<span><span class="fu"><a href="reference/export_to_iramuteq.html">export_to_iramuteq</a></span><span class="op">(</span><span class="va">text_df</span>, meta_cols <span class="op">=</span> <span class="st">"video_id"</span>, text_col <span class="op">=</span> <span class="st">"text_clean"</span>, output_file <span class="op">=</span> <span class="st">"iramuteq.txt"</span><span class="op">)</span></span></code></pre></div>
+<p>Plusieurs vignettes sont rédigées pour aider à l’utilisation</p>
+<ul>
+<li><p><a href="https://tdelc.github.io/lexico/articles/scraping.html">Scraper des playlists YouTube</a> pour apprendre à extraire les vidéos, leurs sous-titres et mettre en format base de données les informations.</p></li>
+<li><p><a href="https://tdelc.github.io/lexico/articles/prepa-data.html">Préparer les données textuelles</a> où j’explique comment j’ai nettoyé le corpus.</p></li>
+<li><p><a href="https://tdelc.github.io/lexico/articles/iramuteq.html">Préparer et exploiter des corpus avec IRaMuTeQ</a> pour comprendre comment exploiter ce corpus avec IRaMuTeQ.</p></li>
+<li><p><a href="https://tdelc.github.io/lexico/articles/quanteda.html">Analyser les textes avec Quanteda</a> pour l’analyse du corpus avec le package R Quanteda</p></li>
+</ul>
 </div>
 <div class="section level2">
-<h2 id="bonnes-pratiques">Bonnes pratiques<a class="anchor" aria-label="anchor" href="#bonnes-pratiques"></a>
+<h2 id="remarques">Remarques<a class="anchor" aria-label="anchor" href="#remarques"></a>
 </h2>
 <ul>
 <li>Respectez les quotas de l’API YouTube et stockez votre clé dans une variable d’environnement.</li>
@@ -170,7 +128,7 @@
 <div class="section level2">
 <h2 id="licence">Licence<a class="anchor" aria-label="anchor" href="#licence"></a>
 </h2>
-<p>Les codes sont publics sous licence gpl3; aucune donnée n’est distribuée avec le package.</p>
+<p>Les codes sont publics sous licence gpl3. Aucune donnée n’est distribuée avec le package.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

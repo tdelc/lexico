@@ -21,8 +21,10 @@ data.frame
 ## Examples
 
 ``` r
-path_vtt <- file.path("inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt")
+path_vtt <- lexico_example("6IOUEJN6GRI.fr.vtt")
 read_vtt_as_text(path_vtt)
-#> Warning: cannot open file 'inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt': No such file or directory
-#> Error in file(con, "r"): cannot open the connection
+#> # A tibble: 1 × 2
+#>   video_id    text                                                              
+#>   <chr>       <chr>                                                             
+#> 1 6IOUEJN6GRI "  Et c'est l'heure du face- à face, il est arrivé à l'instant. B…
 ```

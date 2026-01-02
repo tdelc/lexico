@@ -26,16 +26,18 @@
   : Get most frequent emotion of a sentiment score df
 - [`get_dominant_polarity()`](https://tdelc.github.io/lexico/reference/get_dominant_polarity.md)
   : Get most frequent polarity of a sentiment score df
-- [`get_playlist_items()`](https://tdelc.github.io/lexico/reference/get_playlist_items.md)
-  : Get youtube infos from a playlist
 - [`get_recode_words()`](https://tdelc.github.io/lexico/reference/get_recode_words.md)
   : get recoding words
 - [`get_specific_multiwords()`](https://tdelc.github.io/lexico/reference/get_specific_multiwords.md)
   : Get specific multiwords for the study
 - [`get_specific_stopwords()`](https://tdelc.github.io/lexico/reference/get_specific_stopwords.md)
   : Specific stopwords for this study
-- [`get_videos_details()`](https://tdelc.github.io/lexico/reference/get_videos_details.md)
-  : Get details from youtube videos
+- [`get_videos_info()`](https://tdelc.github.io/lexico/reference/get_videos_info.md)
+  : Get YouTube informations of videos from a playlist
+- [`get_videos_stat()`](https://tdelc.github.io/lexico/reference/get_videos_stat.md)
+  : Get YouTube statistics informations of videos
+- [`get_videos_text()`](https://tdelc.github.io/lexico/reference/get_videos_text.md)
+  : Get YouTube subtitles of videos
 - [`group_minuted_text()`](https://tdelc.github.io/lexico/reference/group_minuted_text.md)
   : Regroup text by minutes
 - [`hms_to_sec()`](https://tdelc.github.io/lexico/reference/hms_to_sec.md)

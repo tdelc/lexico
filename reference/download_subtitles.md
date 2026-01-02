@@ -5,7 +5,7 @@ Download subtitles from a youtube video
 ## Usage
 
 ``` r
-download_subtitles(video_id, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)
+download_subtitles(video_id, out_dir, yt_dlp_path = "yt-dlp", force_dl = FALSE)
 ```
 
 ## Arguments
@@ -18,9 +18,9 @@ download_subtitles(video_id, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)
 
   directory to save file
 
-- yt_dlp:
+- yt_dlp_path:
 
-  name of program to launch
+  path to yt_dlp
 
 - force_dl:
 

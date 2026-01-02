@@ -22,9 +22,12 @@ data.frame
 
 ``` r
 vec_text <- janeaustenr::austen_books()$text
-sentiment_scores <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
-df_polarity <- get_dominant_polarity(df_polarity,1)
-#> Error: 'rownames_to_column' is not an exported object from 'namespace:dplyr'
+df_sentiment <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
+df_polarity <- get_dominant_polarity(df_sentiment,1)
 summarise_polarity(df_polarity)
-#> Error in ungroup(.): could not find function "ungroup"
+#> Joining with `by = join_by(polarity)`
+#> # A tibble: 1 × 3
+#>   negative neutral positive
+#>      <dbl>   <dbl>    <dbl>
+#> 1     0.16    0.44      0.4
 ```

@@ -1,11 +1,11 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://tdelc.github.io/lexico/404.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/LICENSE.html</loc></url>
-<url><loc>https://tdelc.github.io/lexico/articles/00_scraping.html</loc></url>
-<url><loc>https://tdelc.github.io/lexico/articles/01_prepa-data.html</loc></url>
-<url><loc>https://tdelc.github.io/lexico/articles/02_iramuteq.html</loc></url>
-<url><loc>https://tdelc.github.io/lexico/articles/03_quanteda.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/articles/index.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/articles/iramuteq.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/articles/prepa-data.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/articles/quanteda.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/articles/scraping.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/authors.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/index.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/clean_df_text.html</loc></url>
@@ -20,11 +20,12 @@
 <url><loc>https://tdelc.github.io/lexico/reference/get_dictionary.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/get_dominant_emotion.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/get_dominant_polarity.html</loc></url>
-<url><loc>https://tdelc.github.io/lexico/reference/get_playlist_items.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/get_recode_words.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/get_specific_multiwords.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/get_specific_stopwords.html</loc></url>
-<url><loc>https://tdelc.github.io/lexico/reference/get_videos_details.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/reference/get_videos_info.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/reference/get_videos_stat.html</loc></url>
+<url><loc>https://tdelc.github.io/lexico/reference/get_videos_text.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/group_minuted_text.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/hms_to_sec.html</loc></url>
 <url><loc>https://tdelc.github.io/lexico/reference/import_from_iramuteq.html</loc></url>
