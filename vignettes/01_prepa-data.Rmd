@@ -28,7 +28,8 @@ library(lexico)
 library(dplyr)
 library(stringr)
 
-df_text <- data(df_text_bfm)
+data(df_text_bfm)
+df_text <- df_text_bfm
 ```
 
 ## Nettoyer et normaliser le vocabulaire
@@ -128,7 +129,6 @@ vidéo. Ceci permet de contrôler différemment la division en segment de
 texte réalisé par IRaMuTeQ ou par Quanteda.
 
 ```{r}
-
 duree_segment <- 2
 
 df_segment <- df_text %>%

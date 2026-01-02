@@ -29,7 +29,8 @@ library(dplyr)
 library(stringr)
 library(quanteda)
 
-df_text <- data(df_text_bfm)
+data(df_text_bfm)
+df_text <- df_text_bfm
 
 stopwords <- get_specific_stopwords()
 stopwords_regex <- paste0("\\b(?:", paste(stopwords, collapse = "|"), ")\\b")

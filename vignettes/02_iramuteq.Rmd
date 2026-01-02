@@ -32,7 +32,8 @@ library(lexico)
 library(dplyr)
 library(stringr)
 
-df_text <- data(df_text_bfm)
+data(df_text_bfm)
+df_text <- df_text_bfm
 
 stopwords <- get_specific_stopwords()
 stopwords_regex <- paste0("\\b(?:", paste(stopwords, collapse = "|"), ")\\b")
@@ -93,8 +94,7 @@ texte est stocké dans `text` et la classe dans `classe` avec une classe
 métadonnées sont supprimés.
 
 ```{r import}
-path_corpus <- "https://github.com/tdelc/lexico/blob/master/inst/extdata/corpus_bfm/corpus_bfm_alceste_1/"
-df_segment <- import_from_iramuteq(file.path(path_corpus,"export_corpus.txt"))
+df_segment <- import_from_iramuteq(lexico_example("export_corpus.txt"))
 head(df_segment)
 ```
 
@@ -105,7 +105,7 @@ constitutifs de chaque classe.
 nb_classes <- length(unique(df_segment$classe))-1
 
 df_mots <- 1:nb_classes %>% purrr:::map_df(~{
-  read_iramuteq_class(file.path(path_corpus,"RAPPORT.txt"),.x) %>%
+  read_iramuteq_class(lexico_example("RAPPORT.txt"),.x) %>%
     mutate(classe = .x)
 })
 
