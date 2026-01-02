@@ -32,7 +32,7 @@ library(lexico)
 library(dplyr)
 library(stringr)
 
-df_text <- read.csv("~/Github/lexico/inst/extdata/df_text_bfm.csv")
+df_text <- read.csv("https://github.com/tdelc/lexico/blob/master/inst/extdata/df_text_bfm.csv")
 
 stopwords <- get_specific_stopwords()
 stopwords_regex <- paste0("\\b(?:", paste(stopwords, collapse = "|"), ")\\b")
@@ -58,12 +58,12 @@ df_segment <- df_text %>%
 colonne texte et des colonnes de métadonnées. Chaque ligne devient un
 document.
 
-```{r export}
+```{r export, eval = FALSE}
 export_to_iramuteq(
   df = df_segment,
   meta_cols = c("video_id","id_segment"),
   text_col = "text",
-  output_file = "~/Github/lexico/inst/extdata/corpus_bfm.txt"
+  output_file = "inst/extdata/corpus_bfm.txt"
 )
 ```
 
@@ -93,7 +93,7 @@ texte est stocké dans `text` et la classe dans `classe` avec une classe
 métadonnées sont supprimés.
 
 ```{r import}
-path_corpus <- "~/Github/lexico/inst/extdata/corpus_bfm/corpus_bfm_alceste_1/"
+path_corpus <- "https://github.com/tdelc/lexico/blob/master/inst/extdata/corpus_bfm/corpus_bfm_alceste_1/"
 df_segment <- import_from_iramuteq(file.path(path_corpus,"export_corpus.txt"))
 head(df_segment)
 ```
