@@ -4,14 +4,14 @@
 \alias{download_subtitles}
 \title{Download subtitles from a youtube video}
 \usage{
-download_subtitles(video_id, out_dir, yt_dlp = "yt-dlp", force_dl = FALSE)
+download_subtitles(video_id, out_dir, yt_dlp_path = "yt-dlp", force_dl = FALSE)
 }
 \arguments{
 \item{video_id}{video id}
 
 \item{out_dir}{directory to save file}
 
-\item{yt_dlp}{name of program to launch}
+\item{yt_dlp_path}{path to yt_dlp}
 
 \item{force_dl}{overide existed vtt file}
 }

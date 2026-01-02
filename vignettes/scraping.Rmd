@@ -1,0 +1,162 @@
+---
+title: "Scraper des playlists YouTube"
+author: "lexico"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Scraper des playlists YouTube}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = T
+)
+```
+
+```{r, include = FALSE}
+library(lexico)
+df_info <- read.csv(lexico_example("df_info_bfm.csv"))
+df_stat <- read.csv(lexico_example("df_stat_bfm.csv"))
+df_text <- read.csv(lexico_example("df_text_bfm.csv"))
+
+vtt <- readLines(lexico_example("6IOUEJN6GRI.fr.vtt"), warn = FALSE, encoding = "UTF-8")
+```
+
+Cette vignette décrit comment récupérer des vidéos et des sous-titres
+YouTube avant de les transformer en tableaux exploitables avec le
+package **lexico**.
+
+## Pré-requis
+
+-   Une clé API YouTube (`YT_API_KEY`).
+-   L'outil en ligne de commande `yt-dlp`, indiqué via `yt_dlp_path`.
+-   Un dossier où stocker les CSV et les sous-titres téléchargés.
+
+```{r message=FALSE}
+library(lexico)
+library(dplyr)
+
+yt_dlp_path  <- Sys.getenv("YT_DLP_PATH")
+api_key <- Sys.getenv("YT_API_KEY")
+
+workdir <- file.path(tempdir(),"data")
+dir.create(workdir, showWarnings = FALSE)
+```
+
+## Récupérer les métadonnées d'une playlist
+
+La fonction `get_videos_info` permet de récupérer la liste des vidéos.
+Voici un exemple avec la playlist 'Face-à-Face" créée par la chaîne
+d'information en continu BFMTV. En cliquant sur la playlist, on obtient
+l'url suivante :
+<https://www.youtube.com/watch?v=Ul5HWIJLxzs&list=PL-qBKb-rfbhhmFo0yCUq2KyhVKHpCX0aG>.
+On extrait l'identifiant de la playlist après l'argument `list` de
+l'url.
+
+```{r playlist, eval = FALSE}
+playlist_id <- "PL-qBKb-rfbhhmFo0yCUq2KyhVKHpCX0aG"
+
+df_info <- get_videos_info(api_key, playlist_id, max_results = 20)
+```
+
+Cette première base de données nous donne la liste des vidéos avec leur
+identifiant (`video_id`), ainsi que le titre, la description, le nom de
+la chaîne YouTube et la date de publication.
+
+```{r}
+head(df_info)
+```
+
+A partir de cette liste
+d'identifiants, la fonction `get_videos_stat` extrait l'ensemble des
+statistiques des vidéos.
+
+```{r df_stat, eval = FALSE}
+df_stat <- get_videos_stat(api_key, df_info$video_id)
+```
+
+Cette seconde base de données inclue le nombre de vues, de likes et de
+commentaires, mais aussi les tags, la description et la langue de la
+vidéo.
+
+```{r}
+head(df_stat)
+```
+
+Enfin, la fonction `get_videos_text` s'appuie sur `yt-dlp` pour
+récupérer les sous-titres automatiques en français puis en faire une
+base de données.
+
+```{r df_text, eval = FALSE}
+df_text <- get_videos_text(df_info$video_id,workdir,"suffix",yt_dlp_path)
+```
+Cette troisième base de données contient une ligne par bloc de
+sous-titre d'environ quelques secondes, avec le minutage et le texte.
+
+```{r}
+head(df_text)
+```
+
+La fonction `run_complete_extraction` combine toutes les étapes
+précédentes pour obtenir les trois bases de données à partir d'une seule
+playlist.
+
+```{r download, eval = FALSE}
+# Dossier de travail où seront créés df_info_*, df_stat_* et df_text_*
+workdir <- file.path(tempdir(),"data")
+dir.create(workdir, showWarnings = FALSE)
+
+run_complete_extraction(
+  api_key = api_key,
+  yt_dlp_path = yt_dlp_path,
+  path = workdir,
+  suffix = "playlist_demo",
+  playlist_id = playlist_id,
+  max_videos = 5
+)
+```
+
+Pour extraire plusieurs playlist YouTube, le plus simple reste de créer
+une base de données df_playlist avec une ligne par playlist, puis
+d'appliquer la fonction `run_complete_extraction` à chaque ligne.
+
+```{r, eval = FALSE}
+library(lexico)
+yt_dlp  <- Sys.getenv("YT_DLP_PATH")
+api_key <- Sys.getenv("YT_API_KEY")
+
+max_videos  <- 5
+workdir <- file.path(tempdir(),"data")
+
+df_playlist <- dplyr::tibble(
+                 suffix = "bfm",
+                 channelTitle = "BFMTV",
+                 playlist_id = "PL-qBKb-rfbhjZjW0RQr3Dm8iIvXFE0Gwy",
+                 playlistDescription = "Politique") %>%
+  dplyr::add_row(suffix = "fra",
+                 channelTitle = "franceinfo",
+                 playlist_id = "PLg6GanYvTasWQv6EPyPInaYhtyFRcht3r",
+                 playlistDescription = "Interview de 8:30")
+
+1:nrow(df_playlist) %>% purrr::map(~{
+  row <- df_playlist[.x,]
+  cli::cli_alert_info("Extraction {row$playlistDescription}")
+  run_complete_extraction(api_key,yt_dlp,workdir,
+                          row$suffix,row$playlist_id,max_videos)
+})
+```
+
+La fonction `run_complete_extraction` crée trois fichiers pour chaque
+playlist : `df_info`, `df_stat`, `df_text`. Dans le même répertoire se
+trouve également un répertoire avec tous les fichiers vtt de
+sous-titres.
+
+Ces bases de données peuvent ensuite être nettoyées et enrichies avant
+d'être utilisées dans les autres vignettes (préparation, IRaMuTeQ,
+Quanteda).

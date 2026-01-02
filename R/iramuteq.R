@@ -113,15 +113,14 @@ export_to_iramuteq <- function(df, meta_cols, text_col, output_file) {
 #' @export
 #'
 #' @examples
-#' path_iramtueq <- "inst/extdata/corpus_janeausten/corpus_janeausten_alceste_1"
-#' path_txt <- file.path(path_iramtueq,"RAPPORT.txt")
+#' path_txt <- lexico_example("RAPPORT.txt")
 #' head(read_iramuteq_class(path_txt,1))
 read_iramuteq_class <- function(file, classe = 1) {
 
   x <- readLines(file, encoding = "UTF-8", warn = FALSE)
 
   # repérer le début de la classe
-  start <- which(str_detect(
+  start <- which(stringr::str_detect(
     x,
     paste0("^classe\\s+", classe, "\\s+-")
   ))
@@ -132,27 +131,27 @@ read_iramuteq_class <- function(file, classe = 1) {
   x2 <- x[(start + 1):length(x)]
 
   # on garde uniquement les lignes commençant par un rang numérique
-  rows <- x2[str_detect(x2, "^\\s*\\d+\\|")]
+  rows <- x2[stringr::str_detect(x2, "^\\s*\\d+\\|")]
 
   # stop dès qu'on atteint une autre classe ou une ligne vide
-  rows <- rows[!str_detect(rows, "^classe\\s+")]
+  rows <- rows[!stringr::str_detect(rows, "^classe\\s+")]
   rows <- rows[rows != ""]
 
   # rows <- rows[!str_detect(rows,"NS \\(")]
 
   # parsing ligne par ligne
   # res <- lapply(rows, function(l) {
-  res <- tibble(NULL)
+  res <- tibble::tibble(NULL)
   for (l in rows){
 
-    parts <- str_split(l, "\\|", simplify = TRUE)
+    parts <- stringr::str_split(l, "\\|", simplify = TRUE)
     parts <- trimws(parts)
 
-    if (str_detect(l,"NS \\(")) break
+    if (stringr::str_detect(l,"NS \\(")) break
 
-    p.value <- str_extract(parts[7], "\\s+([0-9,.]+)")
+    p.value <- stringr::str_extract(parts[7], "\\s+([0-9,.]+)")
 
-    res_temp <- tibble(
+    res_temp <- tibble::tibble(
       rang        = as.integer(parts[1]),
       freq_classe = as.integer(parts[2]),
       freq_totale = as.integer(parts[3]),
@@ -160,16 +159,17 @@ read_iramuteq_class <- function(file, classe = 1) {
       chi2        = as.numeric(parts[5]),
       pos         = parts[6],
       forme       = parts[7],
-      # CORRIGER ICI
-      # p_value     = str_extract(l, "<\\s*[0-9,.]+")
       p_value     = p.value
     )
-    res <- bind_rows(res,res_temp)
+    res <- dplyr::bind_rows(res,res_temp)
   }
 
   res %>%
-    mutate(forme = str_squish(str_remove(str_remove(forme,p_value),"<")),
-           p_value = as.numeric(str_replace(p_value,",",".")))
+    dplyr::mutate(
+      forme   = stringr::str_remove(stringr::str_remove(forme,p_value),"<"),
+      forme   = stringr::str_squish(forme),
+      p_value = as.numeric(stringr::str_replace(p_value,",","."))
+    )
 }
 
 

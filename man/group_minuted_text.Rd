@@ -4,7 +4,7 @@
 \alias{group_minuted_text}
 \title{Regroup text by minutes}
 \usage{
-group_minuted_text(df, minutes, video_id = "video_id")
+group_minuted_text(df, minutes, video_id = video_id)
 }
 \arguments{
 \item{df}{minuted data.frame from read_vtt_as_df()}
@@ -20,6 +20,6 @@ data.frame
 Regroup text by minutes
 }
 \examples{
-df_text <- read.csv("inst/extdata/df_text_bfm.csv")
+df_text <- read.csv(lexico_example("df_text_bfm.csv"))
 head(group_minuted_text(df_text,2))
 }

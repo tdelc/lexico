@@ -18,7 +18,6 @@ data.frame
 Read report from iramuteq to extract words of each class
 }
 \examples{
-path_iramtueq <- "inst/extdata/corpus_janeausten/corpus_janeausten_alceste_1"
-path_txt <- file.path(path_iramtueq,"RAPPORT.txt")
+path_txt <- lexico_example("RAPPORT.txt")
 head(read_iramuteq_class(path_txt,1))
 }

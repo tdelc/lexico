@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-#' path_vtt <- file.path("inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt")
+#' path_vtt <- lexico_example("6IOUEJN6GRI.fr.vtt")
 #' read_vtt_as_df(path_vtt)
 read_vtt_as_df <- function(vtt_file) {
 
@@ -40,18 +40,18 @@ read_vtt_as_df <- function(vtt_file) {
     },
     character(1)
   ) |>
-    stringr::str_remove_all("<[^>]+>") |>
+    stringr::str_remove_all("<[^>]+>") %>%
     stringr::str_squish()
 
   video_id <- sub("\\..*$", "", basename(vtt_file))
 
-  dplyr::tibble(
+  tibble::tibble(
     start = start,
     end   = end,
     text  = text
   ) |>
-    dplyr::mutate(n_grp = (dplyr::row_number() - 1) %/% 3) |>
-    dplyr::group_by(n_grp) |>
+    dplyr::mutate(n_grp = (dplyr::row_number() - 1) %/% 3) %>%
+    dplyr::group_by(n_grp) %>%
     dplyr::summarise(
       start = min(start),
       end   = max(end),
@@ -71,16 +71,16 @@ read_vtt_as_df <- function(vtt_file) {
 #' @export
 #'
 #' @examples
-#' df_text <- read.csv("inst/extdata/df_text_bfm.csv")
+#' df_text <- read.csv(lexico_example("df_text_bfm.csv"))
 #' head(group_minuted_text(df_text,2))
-group_minuted_text <- function(df,minutes,video_id="video_id"){
+group_minuted_text <- function(df,minutes,video_id=video_id){
   secondes <- minutes*60
   df %>%
     dplyr::mutate(minute = floor(start/secondes)) %>%
-    dplyr::group_by(!!sym(video_id),minute) %>%
+    dplyr::group_by(video_id,minute) %>%
     dplyr::summarise(start = min(start),end = max(end),
               text = paste(text, collapse = " ")) %>%
-    ungroup()
+    dplyr::ungroup()
 }
 
 
@@ -108,7 +108,7 @@ hms_to_sec <- function(x) {
 #' @export
 #'
 #' @examples
-#' path_vtt <- file.path("inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt")
+#' path_vtt <- lexico_example("6IOUEJN6GRI.fr.vtt")
 #' read_vtt_as_text(path_vtt)
 #'
 read_vtt_as_text <- function(vtt_file) {
@@ -132,7 +132,7 @@ read_vtt_as_text <- function(vtt_file) {
   file_name <- basename(vtt_file)
   video_id <- sub("\\..*$", "", file_name)
 
-  dplyr::tibble(
+  tibble::tibble(
     video_id = video_id,
     text = full_text
   )

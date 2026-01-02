@@ -39,6 +39,6 @@ plot
 Plot a treemap of thema and classe of segments
 }
 \examples{
-df_segment <- read.csv("inst/extdata/df_segment.csv")
+df_segment <- read.csv(lexico_example("df_segment.csv"))
 treemap_double_classe(df_segment,"id_classe","classe","classe_local",0)
 }

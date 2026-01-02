@@ -1,4 +1,4 @@
-#' Get youtube infos from a playlist
+#' Get YouTube informations of videos from a playlist
 #'
 #' @param api_key youtube api key
 #' @param playlist_id id of the playlist
@@ -6,7 +6,7 @@
 #'
 #' @returns data.frame
 #' @export
-get_playlist_items <- function(api_key, playlist_id, max_results = 100) {
+get_videos_info <- function(api_key, playlist_id, max_results = 100) {
 
   base_url <- "https://www.googleapis.com/youtube/v3/playlistItems"
 
@@ -59,14 +59,14 @@ get_playlist_items <- function(api_key, playlist_id, max_results = 100) {
     dplyr::filter(!is.na(video_id))
 }
 
-#' Get details from youtube videos
+#' Get YouTube statistics informations of videos
 #'
 #' @param api_key youtube api key
 #' @param video_ids vector of youtube id
 #'
 #' @returns data.frame
 #' @export
-get_videos_details <- function(api_key, video_ids) {
+get_videos_stat <- function(api_key, video_ids) {
 
   base_url <- "https://www.googleapis.com/youtube/v3/videos"
 
@@ -107,21 +107,49 @@ get_videos_details <- function(api_key, video_ids) {
     )
   })
 
-  df
+  return(df)
+}
+
+#' Get YouTube subtitles of videos
+#'
+#' @param video_ids vector of youtube id
+#' @param yt_dlp_path path to yt_dlp
+#' @param path path to save subtitles
+#' @param suffix suffix to identify the playlist
+#' @param force_dl force the download of subtitles
+#'
+#' @returns data.frame
+#' @export
+get_videos_text <- function(video_ids,
+                            path,
+                            suffix,
+                            yt_dlp_path = "yt-dlp",
+                            force_dl = FALSE) {
+
+  dir_path <- file.path(path,paste0("subs_",suffix))
+  dir.create(dir_path, showWarnings = FALSE)
+
+  cli::cli_alert_info("Number of subtitles to download: {length(video_ids)}")
+  purrr::walk(video_ids, download_subtitles,
+              out_dir = dir_path, yt_dlp_path = yt_dlp_path)
+
+  list_files <- list.files(dir_path, pattern = "\\.vtt$", full.names = TRUE)
+
+  return(vtt_files_to_df(path,suffix))
 }
 
 #' Download subtitles from a youtube video
 #'
 #' @param video_id video id
 #' @param out_dir directory to save file
-#' @param yt_dlp name of program to launch
+#' @param yt_dlp_path path to yt_dlp
 #' @param force_dl overide existed vtt file
 #'
 #' @returns NULL
 #' @export
 download_subtitles <- function(video_id,
                                out_dir,
-                               yt_dlp = "yt-dlp",
+                               yt_dlp_path = "yt-dlp",
                                force_dl = FALSE) {
   url <- paste0("https://www.youtube.com/watch?v=", video_id)
 
@@ -144,7 +172,7 @@ download_subtitles <- function(video_id,
   )
 
   cli::cli_alert_info("Downloading video {video_id}.")
-  res <- system2(yt_dlp, args = args, stdout = TRUE, stderr = TRUE)
+  res <- system2(yt_dlp_path, args = args, stdout = TRUE, stderr = TRUE)
   invisible(res)
 }
 
@@ -171,46 +199,37 @@ run_complete_extraction <- function(api_key,
   path_stat <- file.path(path,paste0("df_stat_",suffix,".csv"))
   path_text <- file.path(path,paste0("df_text_",suffix,".csv"))
 
-  dir_path <- file.path(path,paste0("subs_",suffix))
-  dir.create(dir_path, showWarnings = FALSE)
-
   # Previous df
   df_info_prev <- NULL
-  if (file.exists(path_info)) df_info_prev <- utils::read.csv(path_info) %>%
-    dplyr::filter(!is.na(video_id)) %>%
-    dplyr::select(-position) %>% dplyr::distinct()
+  if (file.exists(path_info)){
+    df_info_prev <- utils::read.csv(path_info) %>%
+      dplyr::filter(!is.na(video_id)) %>%
+      dplyr::select(-position) %>% dplyr::distinct()
+  }
 
   df_stat_prev <- NULL
   if (file.exists(path_stat)){
-    df_stat_prev <- utils::read.csv(path_stat) %>%
-      dplyr::mutate(categoryId = as.character(categoryId))
+    df_stat_prev <- utils::read.csv(path_stat)
+    # %>% dplyr::mutate(categoryId = as.character(categoryId))
   }
 
   # Download info et stat
-  df_info <- get_playlist_items(api_key, playlist_id, max_results = max_videos)
-  df_stat <- get_videos_details(api_key,df_info$video_id)
+  df_info <- get_videos_info(api_key, playlist_id, max_results = max_videos)
+  df_stat <- get_videos_stat(api_key,df_info$video_id)
+  df_text <- get_videos_text(df_info$video_id,path,suffix,yt_dlp_path)
 
   df_info <- dplyr::bind_rows(df_info,df_info_prev)
   df_stat <- dplyr::bind_rows(df_stat,df_stat_prev)
 
-  cli::cli_alert_info("Save files df_info_{suffix} and df_stat_{suffix}")
-  utils::write.csv(df_info,file=file.path(path,paste0("df_info_",suffix,".csv")),row.names = F)
-  utils::write.csv(df_stat,file=file.path(path,paste0("df_stat_",suffix,".csv")),row.names = F)
+  # Add info to df_text
+  df_text <- df_text %>% dplyr::mutate(playlist_id = playlist_id)
 
-  vec_ids <- df_info %>% dplyr::pull(video_id)
-  cli::cli_alert_info("Number of subtitles to download: {length(vec_ids)}")
+  cli::cli_alert_info("Save files df_info_{suffix}, df_stat_{suffix}, df_text_{suffix}")
+  utils::write.csv(df_info,file=path_info,row.names = F)
+  utils::write.csv(df_info,file=path_stat,row.names = F)
+  utils::write.csv(df_info,file=path_text,row.names = F)
 
-  purrr::walk(vec_ids, download_subtitles,
-              out_dir = dir_path, yt_dlp = yt_dlp_path)
-
-  list_files <- list.files(dir_path, pattern = "\\.vtt$", full.names = TRUE)
-
-  # df_text <- purrr::map_dfr(list_files, read_vtt_as_text) %>%
-  #   dplyr::mutate(chaine = suffix)
-  df_text <- vtt_files_to_df(path,suffix)
-  utils::write.csv(df_text,file=path_text,row.names = F)
-
-  return(NULL)
+  return(invisible(NULL))
 }
 
 #' Convert vtt files to minuted data.frame

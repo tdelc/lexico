@@ -21,5 +21,5 @@ Get most frequent emotion of a sentiment score df
 vec_text <- janeaustenr::austen_books()$text
 df_sentiment <- syuzhet::get_nrc_sentiment(vec_text[1:50], lang="english")
 df_emotion <- get_dominant_emotion(df_sentiment,2)
-dplyr::count(df_emotion,sentiment)
+dplyr::count(df_emotion,emotion)
 }

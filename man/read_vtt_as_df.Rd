@@ -16,6 +16,6 @@ data.frame
 Convert subtitles file to minuted data.frame
 }
 \examples{
-path_vtt <- file.path("inst/extdata/subs_bfm/6IOUEJN6GRI.fr.vtt")
+path_vtt <- lexico_example("6IOUEJN6GRI.fr.vtt")
 read_vtt_as_df(path_vtt)
 }

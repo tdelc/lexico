@@ -341,8 +341,6 @@ dfm_text %>%
   dfm_group(classe) %>%
   textplot_wordcloud(comparison = T,labelsize = 2)
 
-
-
 df_segment %>%
   group_by(channel) %>%
   summarise_polarity() %>%
@@ -350,6 +348,16 @@ df_segment %>%
   cols_label(channel = "Chaîne") %>%
   format_polarity() %>%
   gt::tab_header("Statistiques des polarités dans les segments de vidéos") %>%
+  gt::tab_source_note(glue::glue("Source : {nrow(df_segment)} segments issus de {length(unique(df_segment$video_id))} vidéos extraites de Youtube")) %>%
+  gt::tab_source_note(glue::glue("Classification des polarités avec le package syuzhet"))
+
+df_segment %>%
+  group_by(classe) %>%
+  summarise_emotions() %>%
+  gt(rowname_col = "classe") %>%
+  cols_label(classe = "Catégorie") %>%
+  format_emotions() %>%
+  gt::tab_header("Statistiques des émotions dans les segments de vidéos") %>%
   gt::tab_source_note(glue::glue("Source : {nrow(df_segment)} segments issus de {length(unique(df_segment$video_id))} vidéos extraites de Youtube")) %>%
   gt::tab_source_note(glue::glue("Classification des polarités avec le package syuzhet"))
 
