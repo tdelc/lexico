@@ -11,3 +11,4 @@ inst/projects
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^\.github$
